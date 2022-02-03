@@ -7,7 +7,7 @@ server:
 spring:
   profiles: dev
   application:
-    name: LakDerana HMS Back End
+    name: Healthylife HMS Back End
   main:
     # This configuration is needed since spring boot 2.1.X if JPAAuditing is enabled. This is false on default so no accidental
     # overrides will occur and if beans are to be overridden, this has to be enabled. - https://stackoverflow.com/questions/53723303/springboot-beandefinitionoverrideexception-invalid-bean-definition
@@ -16,14 +16,14 @@ spring:
   # Datasource Settings
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/LakDeranaHMS}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/HealthylifeHMS}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:password}
     #maxActive: 5 (This can be removed I guess. It has no effect or is deprecated)
 
     # Connection Pool Settings
     hikari:
-      pool-name: lakderana-hikari
+      pool-name: healthylife-hikari
       maximum-pool-size: 8
       minimum-idle: 5
       keepalive-time: 120000
@@ -39,7 +39,7 @@ spring:
     properties:
       hibernate:
         physical_naming_strategy: lk.lakderana.hms.config.PhysicalNamingStrategyImpl
-        default_schema: "LAKDERANA_BASE"
+        default_schema: "HEALTHYLIFE_BASE"
         temp:
           use_jdbc_metadata_defaults: false
         proc:
@@ -55,18 +55,18 @@ spring:
   security:
     signing-key: 8x/A?D(G+KbPeSgVkYp3s6v9y$B&E)H@McQfTjWmZq4t7w!z%C*F-JaNdRgUkXp2
     encoding-strength: 256
-    security-realm: Lakderana-Web
+    security-realm: Healthylife-Web
     jwt:
-      client-id: lakderanaweb
+      client-id: healthylife
       client-secret: 8x/A?D(G+KbPeSgVkYp3s6v9y$B&E)H@McQfTjWmZq4t7w!z%C*F-JaNdRgUkXp2
       grant-type: password
       scope-read: read
       scope-write: write
-      resource-ids: Lakderana-WebResource
+      resource-ids: Healthylife-WebResource
 
 email:
   callback:
-    host: ${HOST_IP:http://lakderana-hms-web.herokuapp.com/auth/reset-password}
+    host: ${HOST_IP:http://healthylife-hms-web.herokuapp.com/auth/reset-password}
     port: 80
 
 reset:
