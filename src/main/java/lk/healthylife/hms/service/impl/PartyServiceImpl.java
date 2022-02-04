@@ -166,13 +166,13 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
         commonReferenceService
                 .getByCmrfCodeAndCmrtCode(PARTY_TYPES.getValue(), partyDTO.getType());
 
-        tMsParty.setDepartment(null);
+        /*tMsParty.setDepartment(null);
         if(!Strings.isNullOrEmpty(partyDTO.getDepartmentCode())) {
             final TMsDepartment tMsDepartment = departmentRepository
                     .findByDpmtCodeAndDpmtStatus(partyDTO.getDepartmentCode(), STATUS_ACTIVE.getShortValue());
 
             tMsParty.setDepartment(tMsDepartment);
-        }
+        }*/
 
         tMsParty.setBranch(null);
         if(partyDTO.getBranchId() != null) {
@@ -263,8 +263,8 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
 
     private void setReferenceData(TMsParty tMsParty, PartyDTO partyDTO) {
 
-        if(tMsParty.getDepartment() != null)
-            partyDTO.setDepartmentName(tMsParty.getDepartment().getDpmtName());
+        /*if(tMsParty.getDepartment() != null)
+            partyDTO.setDepartmentName(tMsParty.getDepartment().getDpmtName());*/
 
         if(!Strings.isNullOrEmpty(partyDTO.getGender())) {
             final CommonReferenceDTO commonReferenceDTO = commonReferenceService

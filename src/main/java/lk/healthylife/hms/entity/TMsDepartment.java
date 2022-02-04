@@ -4,17 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="T_MS_DEPARTMENT")
-public class TMsDepartment {
+public class TMsDepartment extends AuditModel {
 
     @Id
     @Column(name = "DPMT_CODE")
@@ -28,4 +25,8 @@ public class TMsDepartment {
 
     @Column(name = "DPMT_STATUS")
     private Short dpmtStatus;
+
+    @JoinColumn(name = "DPMT_HEAD")
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    private TMsParty departmentHead;
 }

@@ -6,6 +6,7 @@ import lk.healthylife.hms.dto.PartyDTO;
 import lk.healthylife.hms.security.User;
 import lk.healthylife.hms.service.PartyService;
 import lk.healthylife.hms.service.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -26,14 +27,17 @@ import static lk.healthylife.hms.security.JwtTokenUtil.*;
 @Component
 public class JwtTokenProvider {
 
-//    @Value("${security.jwt.expire-length:30}")
-    private long tokenValidPeriod = 30; // 30m
+    @Value("${security.jwt.expire-length:30}")
+    private long tokenValidPeriod; // 30m
 
-//    @Value("${security.security-realm}")
-    private String realm = "Lakderana-Web";
+    @Value("${security.security-realm}")
+    private String realm;
 
-//    @Value("${security.jwt.client-id}")
-    private String clientId = "lakderanaweb";
+    @Value("${security.jwt.client-id}")
+    private String clientId;
+
+    @Value("${security.signing-key}")
+    private String secretKey;
 
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
@@ -81,7 +85,7 @@ public class JwtTokenProvider {
                 .setIssuer(realm)
                 .setIssuedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
                 .setExpiration(ACCESS_TOKEN_EXPIRE_1_MONTH)
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes(StandardCharsets.UTF_8))
+                .signWith(SignatureAlgorithm.HS256, secretKey.getBytes(StandardCharsets.UTF_8))
                 .compact();
     }
 
@@ -95,13 +99,13 @@ public class JwtTokenProvider {
                 .setId(UUID.randomUUID().toString())
                 .setIssuedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
                 .setExpiration(Date.from(LocalDateTime.now().plusMinutes(tokenValidPeriod * 12).atZone(ZoneId.systemDefault()).toInstant()))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes(StandardCharsets.UTF_8))
+                .signWith(SignatureAlgorithm.HS256, secretKey.getBytes(StandardCharsets.UTF_8))
                 .compact();
     }
 
     public Map<String, String> generateTokenPairFromRefreshToken(String refreshToken) {
 
-        Jws<Claims> refreshClaim = Jwts.parser().setSigningKey(SECRET_KEY.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(refreshToken);
+        Jws<Claims> refreshClaim = Jwts.parser().setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(refreshToken);
         String username = refreshClaim.getBody().getSubject();
 
         if (!refreshClaim.getBody().getExpiration().before(new Date())) {
@@ -127,7 +131,7 @@ public class JwtTokenProvider {
                     .setIssuer(realm)
                     .setIssuedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()))
                     .setExpiration(ACCESS_TOKEN_EXPIRE_1_MONTH)
-                    .signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes(StandardCharsets.UTF_8))
+                    .signWith(SignatureAlgorithm.HS256, secretKey.getBytes(StandardCharsets.UTF_8))
                     .compact();
 
             tokenMap.put("jwt", jwtToken);
@@ -162,7 +166,7 @@ public class JwtTokenProvider {
 
     private Jws<Claims> extractClaimsFromToken(String token) {
         return Jwts.parser()
-                .setSigningKey(Base64.getEncoder().encodeToString(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
+                .setSigningKey(Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8)))
                 .parseClaimsJws(token);
     }
 
@@ -177,7 +181,7 @@ public class JwtTokenProvider {
     public boolean isTokenExpired(String token) {
         try {
             Jws<Claims> claims = Jwts.parser()
-                    .setSigningKey(Base64.getEncoder().encodeToString(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
+                    .setSigningKey(Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8)))
                     .parseClaimsJws(token);
             return (claims.getBody().getExpiration().before(new Date()));
         } catch (JwtException | IllegalArgumentException e) {
@@ -187,7 +191,7 @@ public class JwtTokenProvider {
 
     public Date getTokenExpiredAt(String token) {
         Jws<Claims> claims = Jwts.parser()
-                .setSigningKey(Base64.getEncoder().encodeToString(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
+                .setSigningKey(Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8)))
                 .parseClaimsJws(token);
         return claims.getBody().getExpiration();
     }

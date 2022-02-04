@@ -26,7 +26,6 @@ public interface PartyMapper {
             @Mapping(source = "prtyNic", target = "nic"),
             @Mapping(source = "prtyPassport", target = "passport"),
             @Mapping(source = "prtyType", target = "type"),
-            @Mapping(source = "department.dpmtCode", target = "departmentCode"),
             @Mapping(source = "branch.brnhId", target = "branchId"),
             @Mapping(source = "prtyManagedBy", target = "managedBy"),
             @Mapping(source = "prtyStatus", target = "status"),

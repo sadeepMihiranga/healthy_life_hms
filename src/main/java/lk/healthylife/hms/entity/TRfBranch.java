@@ -15,7 +15,7 @@ public class TRfBranch {
 
     @Id
     @GeneratedValue(generator = "BranchSequence")
-    @SequenceGenerator(name = "BranchSequence", schema = "LAKDERANA_BASE", sequenceName = "\"T_RF_BRANCH_BRNH_ID_seq\"", allocationSize = 1)
+    @SequenceGenerator(name = "BranchSequence", schema = "HEALTHYLIFE_BASE", sequenceName = "\"T_RF_BRANCH_BRNH_ID_seq\"", allocationSize = 1)
     @Column(name = "BRNH_ID")
     private Long brnhId;
 

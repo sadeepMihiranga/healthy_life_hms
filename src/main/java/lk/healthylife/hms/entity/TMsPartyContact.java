@@ -15,7 +15,7 @@ public class TMsPartyContact {
 
     @Id
     @GeneratedValue(generator = "PartyContactSequence")
-    @SequenceGenerator(name = "PartyContactSequence", schema = "LAKDERANA_BASE", sequenceName = "\"T_MS_PARTY_CONTACT_PTCN_ID_seq\"", allocationSize = 1)
+    @SequenceGenerator(name = "PartyContactSequence", schema = "HEALTHYLIFE_BASE", sequenceName = "\"T_MS_PARTY_CONTACT_PTCN_ID_seq\"", allocationSize = 1)
     @Column(name = "PTCN_ID")
     private Long ptcnId;
 

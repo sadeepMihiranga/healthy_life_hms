@@ -16,7 +16,7 @@ spring:
   # Datasource Settings
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/HealthylifeHMS}
+    url: ${DB_URL:jdbc:postgresql://localhost:6543/HealthylifeHMS}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:password}
     #maxActive: 5 (This can be removed I guess. It has no effect or is deprecated)
@@ -38,7 +38,7 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        physical_naming_strategy: lk.lakderana.hms.config.PhysicalNamingStrategyImpl
+        physical_naming_strategy: lk.healthylife.hms.config.PhysicalNamingStrategyImpl
         default_schema: "HEALTHYLIFE_BASE"
         temp:
           use_jdbc_metadata_defaults: false
@@ -52,17 +52,17 @@ spring:
     database-platform: org.hibernate.spatial.dialect.postgis.PostgisDialect
     open-in-view: true
 
-  security:
-    signing-key: 8x/A?D(G+KbPeSgVkYp3s6v9y$B&E)H@McQfTjWmZq4t7w!z%C*F-JaNdRgUkXp2
-    encoding-strength: 256
-    security-realm: Healthylife-Web
-    jwt:
-      client-id: healthylife
-      client-secret: 8x/A?D(G+KbPeSgVkYp3s6v9y$B&E)H@McQfTjWmZq4t7w!z%C*F-JaNdRgUkXp2
-      grant-type: password
-      scope-read: read
-      scope-write: write
-      resource-ids: Healthylife-WebResource
+security:
+  signing-key: 8x/A?D(G+KbPeSgVkYp3s6v9y$B&E)H@McQfTjWmZq4t7w!z%C*F-JaNdRgUkXp2
+  encoding-strength: 256
+  security-realm: HealthyLife-Web
+  jwt:
+    client-id: healthylife
+    client-secret: 8x/A?D(G+KbPeSgVkYp3s6v9y$B&E)H@McQfTjWmZq4t7w!z%C*F-JaNdRgUkXp2
+    grant-type: password
+    scope-read: read
+    scope-write: write
+    resource-ids: Healthylife-WebResource
 
 email:
   callback:

@@ -7,7 +7,6 @@ import java.util.Date;
 @Component
 public class JwtTokenUtil {
 
-    public static final String SECRET_KEY = "secret";
     public static final String ROLES = "roles";
     public static final String DISPLAY_NAME = "displayName";
     public static final String PARTY_CODE = "partyCode";

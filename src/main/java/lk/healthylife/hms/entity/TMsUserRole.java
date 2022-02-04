@@ -8,11 +8,11 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name="T_MS_USER_ROLE")
-public class TMsUserRole {
+public class TMsUserRole extends AuditModel {
 
     @Id
     @GeneratedValue(generator = "UserRoleSequence")
-    @SequenceGenerator(name = "UserRoleSequence", schema = "LAKDERANA_BASE", sequenceName = "\"T_RF_USER_ROLES_ID_seq\"", allocationSize = 1)
+    @SequenceGenerator(name = "UserRoleSequence", schema = "HEALTHYLIFE_BASE", sequenceName = "\"T_RF_USER_ROLES_ID_seq\"", allocationSize = 1)
     @Column(name="USRL_ID")
     private Long usrlId;
 

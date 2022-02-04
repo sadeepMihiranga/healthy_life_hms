@@ -11,11 +11,11 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name="T_MS_USER_BRANCH")
-public class TMsUserBranch {
+public class TMsUserBranch extends AuditModel {
 
     @Id
     @GeneratedValue(generator = "UserBranchSequence")
-    @SequenceGenerator(name = "UserBranchSequence", schema = "LAKDERANA_BASE", sequenceName = "\"T_RF_BRANCH_BRNH_ID_seq\"", allocationSize = 1)
+    @SequenceGenerator(name = "UserBranchSequence", schema = "HEALTHYLIFE_BASE", sequenceName = "\"T_RF_BRANCH_BRNH_ID_seq\"", allocationSize = 1)
     @Column(name = "USBR_ID")
     private Long usbrId;
 

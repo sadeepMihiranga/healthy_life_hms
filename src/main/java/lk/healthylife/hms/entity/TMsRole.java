@@ -16,7 +16,7 @@ public class TMsRole {
 
     @Id
     @GeneratedValue(generator = "RoleSequence")
-    @SequenceGenerator(name = "RoleSequence", schema = "LAKDERANA_BASE", sequenceName = "\"T_MS_ROLE_ID_seq\"", allocationSize = 1)
+    @SequenceGenerator(name = "RoleSequence", schema = "HEALTHYLIFE_BASE", sequenceName = "\"T_MS_ROLE_ID_seq\"", allocationSize = 1)
     @Column(name = "ROLE_ID")
     private Long roleId;
 
