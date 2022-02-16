@@ -68,4 +68,21 @@ public class EntityValidator {
         if (size < 1)
             throw new InvalidDataException("Limit should be a value greater than 0");
     }
+
+    protected final String getExceptionMessageChain(Throwable throwable) {
+        List<String> result = new ArrayList<String>();
+
+        while (throwable != null) {
+            result.add(throwable.getMessage());
+            throwable = throwable.getCause();
+        }
+
+        for(String errorMessage : result) {
+            if(errorMessage.contains("duplicate key value")) {
+                return errorMessage.substring(errorMessage.indexOf(")=") + 2);
+            }
+        }
+
+        return result.get(0);
+    }
 }

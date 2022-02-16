@@ -53,6 +53,10 @@ public class TMsParty extends AuditModel {
     @Column(name = "PRTY_TYPE")
     private String prtyType;
 
+    @JoinColumn(name = "PRTY_DEPARTMENT_CODE")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    private TMsDepartment department;
+
     @JoinColumn(name = "PRTY_BRANCH_ID")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private TRfBranch branch;

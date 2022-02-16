@@ -8,16 +8,22 @@ import lk.healthylife.hms.exception.*;
 import lk.healthylife.hms.mapper.PartyContactMapper;
 import lk.healthylife.hms.repository.PartyContactRepository;
 import lk.healthylife.hms.repository.PartyRepository;
+import lk.healthylife.hms.service.CommonReferenceService;
 import lk.healthylife.hms.service.PartyContactService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static lk.healthylife.hms.util.constant.CommonReferenceTypeCodes.*;
 import static lk.healthylife.hms.util.constant.Constants.*;
 
 @Slf4j
@@ -27,26 +33,29 @@ public class PartyContactServiceImpl extends EntityValidator implements PartyCon
     private final PartyContactRepository partyContactRepository;
     private final PartyRepository partyRepository;
 
+    private final CommonReferenceService commonReferenceService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
     public PartyContactServiceImpl(PartyContactRepository partyContactRepository,
-                                   PartyRepository partyRepository) {
+                                   PartyRepository partyRepository,
+                                   CommonReferenceService commonReferenceService) {
         this.partyContactRepository = partyContactRepository;
         this.partyRepository = partyRepository;
+        this.commonReferenceService = commonReferenceService;
     }
 
     @Override
     public PartyContactDTO insertPartyContact(PartyContactDTO partyContactDTO, Boolean isPartyValidated) {
 
-        TMsPartyContact tMsPartyContact = null;
-        TMsParty tMsParty = null;
-
-        if(Strings.isNullOrEmpty(partyContactDTO.getContactNumber()))
-            throw new NoRequiredInfoException("Contact Number is required");
-
-        if(Strings.isNullOrEmpty(partyContactDTO.getContactType()))
-            throw new NoRequiredInfoException("Contact Type is required");
+        validateEntity(partyContactDTO);
 
         if(!isPartyValidated)
-            tMsParty = validatePartyCode(partyContactDTO.getPartyCode());
+            validatePartyCode(partyContactDTO.getPartyCode());
+
+        commonReferenceService
+                .getByCmrfCodeAndCmrtCode(PARTY_CONTACT_TYPES.getValue(), partyContactDTO.getContactType());
 
         final TMsPartyContact alreadyPartyContact = partyContactRepository
                 .findAllByParty_PrtyCodeAndPtcnContactTypeAndPtcnStatus(partyContactDTO.getPartyCode(),
@@ -55,18 +64,18 @@ public class PartyContactServiceImpl extends EntityValidator implements PartyCon
         if(alreadyPartyContact != null)
             throw new DuplicateRecordException("There is a active Contact Number for the given Type");
 
-        try {
-            tMsPartyContact = PartyContactMapper.INSTANCE.dtoToEntity(partyContactDTO);
+        final Query query = entityManager.createNativeQuery("INSERT INTO \"HEALTHYLIFE_BASE\".\"T_MS_PARTY_CONTACT\" " +
+                "(\"PTCN_CONTACT_TYPE\", \"PTCN_CONTACT_NUMBER\", \"PTCN_STATUS\", \"PTCN_PRTY_CODE\")\n" +
+                "VALUES (?, ?, ?, ?) RETURNING \"PTCN_ID\"")
+                .setParameter(1, partyContactDTO.getContactType())
+                .setParameter(2, partyContactDTO.getContactNumber())
+                .setParameter(3, STATUS_ACTIVE.getShortValue())
+                .setParameter(4, partyContactDTO.getPartyCode());
 
-            tMsPartyContact.setPtcnStatus(STATUS_ACTIVE.getShortValue());
-            if(!isPartyValidated)
-                tMsPartyContact.setParty(tMsParty);
-        } catch (Exception e) {
-            log.error("Error while creating a Party Contact {0} ", e.getMessage());
-            throw new OperationException("Error while creating a Party Contact");
-        }
+        final BigInteger insertedContactSeqNo = (BigInteger) query.getSingleResult();
 
-        return PartyContactMapper.INSTANCE.entityToDTO(persistEntity(tMsPartyContact));
+        return PartyContactMapper.INSTANCE.entityToDTO(partyContactRepository
+                .findByPtcnIdAndPtcnStatus(insertedContactSeqNo.longValue(), STATUS_ACTIVE.getShortValue()));
     }
 
     @Override

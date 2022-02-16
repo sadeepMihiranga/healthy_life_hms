@@ -19,7 +19,7 @@ public class NumberGeneratorRepository implements NumberGeneratorService {
      */
     public String generateNumber(String refNumType, String increase, String subTypeRef1, String subTypeRef2, String subTypeRef3,
                                  String subTypeRef4, String year, String month) {
-        StoredProcedureQuery storedProcedureQuery = entityManager.createStoredProcedureQuery("\"LAKDERANA_BASE\".\"F_GEN_SYS_REF_NUMBER\"");
+        StoredProcedureQuery storedProcedureQuery = entityManager.createStoredProcedureQuery("\"HEALTHYLIFE_BASE\".\"F_GEN_SYS_REF_NUMBER\"");
 
         storedProcedureQuery.registerStoredProcedureParameter(1, String.class, ParameterMode.IN);
         storedProcedureQuery.setParameter(1, refNumType);

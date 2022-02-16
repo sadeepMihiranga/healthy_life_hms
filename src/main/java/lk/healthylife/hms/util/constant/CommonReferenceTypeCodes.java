@@ -8,7 +8,9 @@ public enum CommonReferenceTypeCodes {
     ROOM_TYPES("ROMTP"),
     FACILITY_TYPES("FCLTP"),
     MEASUREMENT_TYPES("UOFMS"),
-    PAYMENT_TYPES("PAYTP");
+    PAYMENT_TYPES("PAYTP"),
+    BLOODGROUP_TYPES("BLDGP"),
+    DOC_SPECIALIZATION_TYPES("DCSPC");
 
     private String value;
     private short shortValue;
