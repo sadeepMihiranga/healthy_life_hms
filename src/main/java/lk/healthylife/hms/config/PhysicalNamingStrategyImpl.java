@@ -12,10 +12,10 @@ public class PhysicalNamingStrategyImpl extends PhysicalNamingStrategyStandardIm
     private static final long serialVersionUID = 1L;
     public static final PhysicalNamingStrategyImpl INSTANCE = new PhysicalNamingStrategyImpl();
 
-    @Override
+    /*@Override
     public Identifier toPhysicalSchemaName(Identifier name, JdbcEnvironment context) {
         return new Identifier(addUnderscores(name.getText()), true);
-    }
+    }*/
 
     @Override
     public Identifier toPhysicalTableName(Identifier name, JdbcEnvironment context) {

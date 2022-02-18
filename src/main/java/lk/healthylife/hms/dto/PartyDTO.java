@@ -36,11 +36,13 @@ public class PartyDTO implements Paginated {
     @NotBlank(message = "Blood Group is mandatory")
     private String bloodGroup;
     private String specialization;
+    private String specializationName;
     @NotBlank(message = "Party Type is mandatory")
     private String type;
     private String departmentCode;
     private String departmentName;
     private Long branchId;
+    private String branchName;
     private String managedBy;
     private String managedByName;
     private Short status;

@@ -12,6 +12,8 @@ import lk.healthylife.hms.service.CommonReferenceService;
 import lk.healthylife.hms.service.PartyContactService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
+import org.hibernate.query.internal.NativeQueryImpl;
+import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static lk.healthylife.hms.util.constant.CommonReferenceTypeCodes.*;
 import static lk.healthylife.hms.util.constant.Constants.*;
@@ -64,18 +67,17 @@ public class PartyContactServiceImpl extends EntityValidator implements PartyCon
         if(alreadyPartyContact != null)
             throw new DuplicateRecordException("There is a active Contact Number for the given Type");
 
-        final Query query = entityManager.createNativeQuery("INSERT INTO \"HEALTHYLIFE_BASE\".\"T_MS_PARTY_CONTACT\" " +
-                "(\"PTCN_CONTACT_TYPE\", \"PTCN_CONTACT_NUMBER\", \"PTCN_STATUS\", \"PTCN_PRTY_CODE\")\n" +
-                "VALUES (?, ?, ?, ?) RETURNING \"PTCN_ID\"")
+        final Query query = entityManager.createNativeQuery("INSERT INTO \"T_MS_PARTY_CONTACT\" " +
+                        "(\"PTCN_CONTACT_TYPE\", \"PTCN_CONTACT_NUMBER\", \"PTCN_STATUS\", \"PTCN_PRTY_CODE\")\n" +
+                        "VALUES (?, ?, ?, ?)")
                 .setParameter(1, partyContactDTO.getContactType())
                 .setParameter(2, partyContactDTO.getContactNumber())
                 .setParameter(3, STATUS_ACTIVE.getShortValue())
                 .setParameter(4, partyContactDTO.getPartyCode());
 
-        final BigInteger insertedContactSeqNo = (BigInteger) query.getSingleResult();
+        query.executeUpdate();
 
-        return PartyContactMapper.INSTANCE.entityToDTO(partyContactRepository
-                .findByPtcnIdAndPtcnStatus(insertedContactSeqNo.longValue(), STATUS_ACTIVE.getShortValue()));
+        return null;
     }
 
     @Override
@@ -101,17 +103,36 @@ public class PartyContactServiceImpl extends EntityValidator implements PartyCon
         if(!isPartyValidated)
            validatePartyCode(partyCode);
 
-        final List<TMsPartyContact> tMsPartyContactList = partyContactRepository
-                .findAllByParty_PrtyCodeAndPtcnStatus(partyCode, STATUS_ACTIVE.getShortValue());
+        String queryString = "SELECT PTCN_ID, PTCN_CONTACT_TYPE, PTCN_CONTACT_NUMBER, PTCN_STATUS, PTCN_PRTY_CODE\n" +
+                "FROM T_MS_PARTY_CONTACT\n" +
+                "WHERE PTCN_PRTY_CODE = :partyCode AND PTCN_STATUS = :status";
 
-        if(tMsPartyContactList.isEmpty() || tMsPartyContactList == null)
+        Query query = entityManager.createNativeQuery(queryString);
+
+        query.setParameter("status", STATUS_ACTIVE.getShortValue());
+        query.setParameter("partyCode", partyCode);
+
+        NativeQueryImpl nativeQuery = (NativeQueryImpl) query;
+        nativeQuery.setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+        List<Map<String,Object>> result = nativeQuery.getResultList();
+
+        if(result.size() == 0)
             return Collections.emptyList();
 
         List<PartyContactDTO> contactDTOList = new ArrayList<>();
 
-        tMsPartyContactList.forEach(tMsPartyContact -> {
-            contactDTOList.add(PartyContactMapper.INSTANCE.entityToDTO(tMsPartyContact));
-        });
+        for (Map<String,Object> party : result) {
+
+            PartyContactDTO partyContactDTO = new PartyContactDTO();
+
+            partyContactDTO.setContactId(extractLongValue(String.valueOf(party.get("PTCN_ID"))));
+            partyContactDTO.setPartyCode(extractValue(String.valueOf(party.get("PTCN_PRTY_CODE"))));
+            partyContactDTO.setContactType(extractValue(String.valueOf(party.get("PTCN_CONTACT_TYPE"))));
+            partyContactDTO.setContactNumber(extractValue(String.valueOf(party.get("PTCN_CONTACT_NUMBER"))));
+            partyContactDTO.setStatus(extractShortValue(String.valueOf(party.get("PTCN_STATUS"))));
+
+            contactDTOList.add(partyContactDTO);
+        }
 
         return contactDTOList;
     }

@@ -14,30 +14,24 @@ import lk.healthylife.hms.exception.InvalidDataException;
 import lk.healthylife.hms.exception.OperationException;
 import lk.healthylife.hms.exception.TransactionConflictException;
 import lk.healthylife.hms.mapper.PartyMapper;
-import lk.healthylife.hms.repository.BranchRepository;
-import lk.healthylife.hms.repository.DepartmentRepository;
-import lk.healthylife.hms.repository.NumberGeneratorRepository;
-import lk.healthylife.hms.repository.PartyRepository;
+import lk.healthylife.hms.repository.*;
 import lk.healthylife.hms.service.CommonReferenceService;
 import lk.healthylife.hms.service.PartyContactService;
 import lk.healthylife.hms.service.PartyService;
 import lk.healthylife.hms.service.UserService;
+import lk.healthylife.hms.util.DateConversion;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.hibernate.query.internal.NativeQueryImpl;
+import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import javax.persistence.*;
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static lk.healthylife.hms.util.constant.CommonReferenceTypeCodes.*;
 import static lk.healthylife.hms.util.constant.Constants.*;
@@ -54,6 +48,7 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
     private final DepartmentRepository departmentRepository;
     private final BranchRepository branchRepository;
     private final NumberGeneratorRepository numberGeneratorRepository;
+    private final CustomRepository customRepository;
 
     private final AuditorAwareImpl auditorAware;
 
@@ -67,6 +62,7 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
                             DepartmentRepository departmentRepository,
                             BranchRepository branchRepository,
                             NumberGeneratorRepository numberGeneratorRepository,
+                            CustomRepository customRepository,
                             AuditorAwareImpl auditorAware) {
         this.partyRepository = partyRepository;
         this.commonReferenceService = commonReferenceService;
@@ -75,6 +71,7 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
         this.departmentRepository = departmentRepository;
         this.branchRepository = branchRepository;
         this.numberGeneratorRepository = numberGeneratorRepository;
+        this.customRepository = customRepository;
         this.auditorAware = auditorAware;
     }
 
@@ -103,12 +100,12 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
             throw new OperationException("Party Code not generated");
 
         try {
-            final Query query = entityManager.createNativeQuery("INSERT INTO \"HEALTHYLIFE_BASE\".\"T_MS_PARTY\" " +
+            final Query query = entityManager.createNativeQuery("INSERT INTO \"T_MS_PARTY\" " +
                     "(\"PRTY_FIRST_NAME\", \"PRTY_LAST_NAME\", \"PRTY_DOB\", \"PRTY_ADDRESS_1\", \"PRTY_ADDRESS_2\", \"PRTY_ADDRESS_3\", \"PRTY_STATUS\",\n" +
                     "\"PRTY_GENDER\", \"PRTY_TYPE\", \"PRTY_BRANCH_ID\", \"PRTY_DEPARTMENT_CODE\", \"PRTY_NIC\", \"PRTY_MANAGED_BY\", \"PRTY_PASSPORT\", " +
                     "\"PRTY_NAME\", \"CREATED_DATE\", \"CREATED_USER_CODE\", \"PRTY_CODE\", \"PRTY_INITIALS\", " +
                     "\"PRTY_BLOOD_GROUP\", \"PRTY_SPECIALIZATION_CODE\")\n" +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);", TMsParty.class)
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", TMsParty.class)
                     .setParameter(1, partyDTO.getFirstName())
                     .setParameter(2, Strings.isNullOrEmpty(partyDTO.getLastName()) ? null : partyDTO.getLastName())
                     .setParameter(3, partyDTO.getDob())
@@ -161,7 +158,7 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
 
         PartyDTO partyDTO = PartyMapper.INSTANCE.entityToDTO(tMsParty);
 
-        setReferenceData(tMsParty, partyDTO);
+        partyDTO.setContactList(partyContactService.getContactsByPartyCode(partyDTO.getPartyCode(), true));
 
         final List<PartyContactDTO> contactDTOList = partyContactService.getContactsByPartyCode(partyDTO.getPartyCode(), true);
         partyDTO.setContactList(contactDTOList);
@@ -261,17 +258,13 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
     public PaginatedEntity partyPaginatedSearch(String name, String partyType, Integer page, Integer size) {
 
         PaginatedEntity paginatedPartyList = null;
-        List<PartyDTO> customerList = null;
+        List<PartyDTO> partyList = null;
 
         validatePaginateIndexes(page, size);
 
         partyType = partyType.isEmpty() ? null : partyType;
 
-        /*Page<TMsParty> tMsPartyPage = partyRepository
-                .getActiveParties(name, STATUS_ACTIVE.getShortValue(), partyType, captureBranchIds(),
-                        PageRequest.of(page - 1, size));*/
-
-        String countQueryString = "SELECT COUNT(*) FROM \"HEALTHYLIFE_BASE\".\"T_MS_PARTY\"\n" +
+        String countQueryString = "SELECT COUNT(*) FROM \"T_MS_PARTY\"\n" +
                 "WHERE \"PRTY_STATUS\"=:status\n" +
                 "  AND (:partyType IS NULL OR (:partyType IS NOT NULL) AND \"PRTY_TYPE\"=:partyType)\n" +
                 "  AND (upper(\"PRTY_NAME\") LIKE ('%'||upper(:name)||'%'))\n" +
@@ -284,56 +277,99 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
         query.setParameter("name", name);
         query.setParameter("branchIdList", captureBranchIds());
 
-        int count = ((Number) query.getSingleResult()).intValue();
+        final int selectedRecordCount = ((Number) query.getSingleResult()).intValue();
+
+        query = null;
 
         String queryString = "SELECT p.\"PRTY_CODE\", p.\"CREATED_DATE\", p.\"CREATED_USER_CODE\",\n" +
                 "       p.\"LAST_MOD_DATE\", p.\"LAST_MOD_USER_CODE\", p.\"PRTY_BRANCH_ID\",\n" +
                 "       p.\"PRTY_DEPARTMENT_CODE\", p.\"PRTY_ADDRESS_1\", p.\"PRTY_ADDRESS_2\",\n" +
                 "       p.\"PRTY_ADDRESS_3\", p.\"PRTY_BLOOD_GROUP\", p.\"PRTY_DOB\",\n" +
                 "       p.\"PRTY_FIRST_NAME\", p.\"PRTY_GENDER\", p.\"PRTY_LAST_NAME\",\n" +
-                "       p.\"PRTY_MANAGED_BY\", p.\"PRTY_NAME\", p.\"PRTY_NIC\",\n" +
-                "       p.\"PRTY_PASSPORT\", p.\"PRTY_SPECIALIZATION_CODE\", p.\"PRTY_STATUS\",\n" +
-                "       p.\"PRTY_TYPE\", string_agg(pc.\"PTCN_CONTACT_TYPE\", ',') AS \"CONTACT_TYPES\", string_agg(pc.\"PTCN_CONTACT_NUMBER\", ',') AS \"CONTACT_NOS\",\n" +
-                "       split_part(string_agg(gender.\"CMRF_DESCRIPTION\", ','), ',', 1) AS \"PRTY_GENDER_VALUE\",\n" +
-                "       split_part(string_agg(type.\"CMRF_DESCRIPTION\", ','), ',', 1) AS \"PRTY_TYPE_VALUE\",\n" +
-                "       split_part(string_agg(br.\"BRNH_NAME\", ','), ',', 1) AS \"PRTY_BRANCH_NAME\",\n" +
-                "       split_part(string_agg(dspec.\"CMRF_DESCRIPTION\", ','), ',', 1) AS \"PRTY_SPECIALIZATION\"\n" +
-                "FROM \"HEALTHYLIFE_BASE\".\"T_MS_PARTY\" p\n" +
-                "LEFT JOIN \"HEALTHYLIFE_BASE\".\"T_MS_PARTY_CONTACT\" pc ON p.\"PRTY_CODE\" = pc.\"PTCN_PRTY_CODE\"\n" +
-                "LEFT JOIN \"HEALTHYLIFE_BASE\".\"T_RF_COMMON_REFERENCE\" gender ON p.\"PRTY_GENDER\" = gender.\"CMRF_CODE\"\n" +
-                "LEFT JOIN \"HEALTHYLIFE_BASE\".\"T_RF_COMMON_REFERENCE\" type ON p.\"PRTY_TYPE\" = type.\"CMRF_CODE\"\n" +
-                "LEFT JOIN \"HEALTHYLIFE_BASE\".\"T_RF_BRANCH\" br ON p.\"PRTY_BRANCH_ID\" = br.\"BRNH_ID\"\n" +
-                "LEFT JOIN \"HEALTHYLIFE_BASE\".\"T_RF_COMMON_REFERENCE\" dspec ON p.\"PRTY_SPECIALIZATION_CODE\" = dspec.\"CMRF_CODE\"\n" +
-                "WHERE p.\"PRTY_STATUS\"=1\n" +
-                "  AND p.\"PRTY_TYPE\"='DOCTR'\n" +
-                "  AND (? IS NULL OR (? IS NOT NULL) AND p.\"PRTY_TYPE\"=?)\n" +
-                "  AND (upper(p.\"PRTY_NAME\") LIKE ('%'||upper(?)||'%'))\n" +
-                "  AND (p.\"PRTY_BRANCH_ID\" IN (?))\n" +
-                "GROUP BY p.\"PRTY_CODE\", p.\"LAST_MOD_DATE\"\n" +
-                "ORDER BY p.\"LAST_MOD_DATE\" OFFSET 0 LIMIT 10;";
+                "       p.\"PRTY_MANAGED_BY\", p.\"PRTY_NAME\", p.\"PRTY_NIC\", p.\"PRTY_PASSPORT\",\n" +
+                "       p.\"PRTY_SPECIALIZATION_CODE\", p.\"PRTY_STATUS\", p.\"PRTY_TYPE\", p.\"PRTY_INITIALS\",\n"+
+                "       listagg(pc.\"PTCN_CONTACT_TYPE\", ',') AS \"CONTACT_TYPES\",\n " +
+                "       listagg(pc.\"PTCN_CONTACT_NUMBER\", ',') AS \"CONTACT_NOS\",\n" +
+                "       listagg(gender.\"CMRF_DESCRIPTION\", ',') AS \"PRTY_GENDER_VALUE\",\n" +
+                "       listagg(type.\"CMRF_DESCRIPTION\", ',') AS \"PRTY_TYPE_VALUE\",\n" +
+                "       listagg(br.\"BRNH_NAME\", ',') AS \"PRTY_BRANCH_NAME\",\n" +
+                "       listagg(dspec.\"CMRF_DESCRIPTION\", ',') AS \"PRTY_SPECIALIZATION\"\n" +
+                "FROM \"T_MS_PARTY\" p\n" +
+                "LEFT JOIN \"T_MS_PARTY_CONTACT\" pc ON p.\"PRTY_CODE\" = pc.\"PTCN_PRTY_CODE\"\n" +
+                "LEFT JOIN \"T_RF_COMMON_REFERENCE\" gender ON p.\"PRTY_GENDER\" = gender.\"CMRF_CODE\"\n" +
+                "LEFT JOIN \"T_RF_COMMON_REFERENCE\" type ON p.\"PRTY_TYPE\" = type.\"CMRF_CODE\"\n" +
+                "LEFT JOIN \"T_RF_BRANCH\" br ON p.\"PRTY_BRANCH_ID\" = br.\"BRNH_ID\"\n" +
+                "LEFT JOIN \"T_RF_COMMON_REFERENCE\" dspec ON p.\"PRTY_SPECIALIZATION_CODE\" = dspec.\"CMRF_CODE\"\n" +
+                "WHERE p.\"PRTY_STATUS\"=:status\n" +
+                "  AND (:partyType IS NULL OR (:partyType IS NOT NULL) AND p.\"PRTY_TYPE\"=:partyType)\n" +
+                "  AND (upper(p.\"PRTY_NAME\") LIKE ('%'||upper(:name)||'%'))\n" +
+                "  AND (p.\"PRTY_BRANCH_ID\" IN (:branchIdList))\n" +
+                "GROUP BY p.\"PRTY_CODE\", p.\"LAST_MOD_DATE\", p.\"CREATED_DATE\", p.\"CREATED_USER_CODE\", \n" +
+                "         p.\"LAST_MOD_USER_CODE\", p.\"PRTY_BRANCH_ID\", p.\"PRTY_DEPARTMENT_CODE\", \n" +
+                "         p.\"PRTY_ADDRESS_1\", p.\"PRTY_ADDRESS_2\", p.\"PRTY_ADDRESS_3\", p.\"PRTY_BLOOD_GROUP\", \n" +
+                "         p.\"PRTY_DOB\", p.\"PRTY_FIRST_NAME\", p.\"PRTY_GENDER\", p.\"PRTY_LAST_NAME\", \n" +
+                "         p.\"PRTY_MANAGED_BY\", p.\"PRTY_NAME\", p.\"PRTY_NIC\", p.\"PRTY_PASSPORT\", \n" +
+                "         p.\"PRTY_SPECIALIZATION_CODE\", p.\"PRTY_STATUS\", p.\"PRTY_TYPE\", p.\"PRTY_INITIALS\" \n" +
+                "ORDER BY p.\"LAST_MOD_DATE\" OFFSET :page ROWS FETCH NEXT :size ROWS ONLY";
+
         query = entityManager.createNativeQuery(queryString);
-        //query.setParameter(1, id);
 
-        List<Object[]> resultList = query.getResultList();
+        query.setParameter("status", STATUS_ACTIVE.getShortValue());
+        query.setParameter("partyType", partyType);
+        query.setParameter("name", name);
+        query.setParameter("branchIdList", captureBranchIds());
+        query.setParameter("size", size);
+        query.setParameter("page", size * page);
 
-        /*if (tMsPartyPage.getSize() == 0)
+        NativeQueryImpl nativeQuery = (NativeQueryImpl) query;
+        nativeQuery.setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+        List<Map<String,Object>> result = nativeQuery.getResultList();
+
+        if (result.size() == 0)
             return null;
 
         paginatedPartyList = new PaginatedEntity();
-        customerList = new ArrayList<>();
+        partyList = new ArrayList<>();
 
-        for (TMsParty tMsParty : tMsPartyPage) {
+        for (Map<String,Object> party : result) {
 
-            PartyDTO partyDTO = PartyMapper.INSTANCE.entityToDTO(tMsParty);
+            PartyDTO partyDTO = new PartyDTO();
 
-            setReferenceData(tMsParty, partyDTO);
+            partyDTO.setPartyCode(extractValue(String.valueOf(party.get("PRTY_CODE"))));
+            partyDTO.setName(extractValue(String.valueOf(party.get("PRTY_NAME"))));
+            partyDTO.setBranchId(extractLongValue(String.valueOf(party.get("PRTY_BRANCH_ID"))));
+            partyDTO.setBranchName(extractValue(String.valueOf(party.get("PRTY_BRANCH_NAME"))));
+            partyDTO.setAddress1(extractValue(String.valueOf(party.get("PRTY_ADDRESS_1"))));
+            partyDTO.setAddress2(extractValue(String.valueOf(party.get("PRTY_ADDRESS_2"))));
+            partyDTO.setAddress3(extractValue(String.valueOf(party.get("PRTY_ADDRESS_3"))));
+            partyDTO.setCreatedDate(extractDateTime(String.valueOf(party.get("CREATED_DATE"))));
+            partyDTO.setCreatedUserCode(extractValue(String.valueOf(party.get("CREATED_USER_CODE"))));
+            partyDTO.setDob(extractDate(String.valueOf(party.get("PRTY_DOB"))));
+            partyDTO.setInitials(extractValue(String.valueOf(party.get("PRTY_INITIALS"))));
+            partyDTO.setFirstName(extractValue(String.valueOf(party.get("PRTY_FIRST_NAME"))));
+            partyDTO.setLastName(extractValue(String.valueOf(party.get("PRTY_LAST_NAME"))));
+            partyDTO.setLastUpdatedDate(extractDateTime(String.valueOf(party.get("LAST_MOD_DATE"))));
+            partyDTO.setLastUpdatedUserCode(extractValue(String.valueOf(party.get("LAST_MOD_USER_CODE"))));
+            partyDTO.setGender(extractValue(String.valueOf(party.get("PRTY_GENDER"))));
+            partyDTO.setGenderName(extractValue(String.valueOf(party.get("PRTY_GENDER_VALUE"))));
+            partyDTO.setBloodGroup(extractValue(String.valueOf(party.get("PRTY_BLOOD_GROUP"))));
+            partyDTO.setNic(extractValue(String.valueOf(party.get("PRTY_NIC"))));
+            partyDTO.setPassport(extractValue(String.valueOf(party.get("PRTY_PASSPORT"))));
+            partyDTO.setManagedBy(extractValue(String.valueOf(party.get("PRTY_MANAGED_BY"))));
+            partyDTO.setManagedByName(extractValue(String.valueOf(party.get("PRTY_MANAGED_BY"))));
+            partyDTO.setType(extractValue(String.valueOf(party.get("PRTY_TYPE"))));
+            partyDTO.setSpecialization(extractValue(String.valueOf(party.get("PRTY_SPECIALIZATION_CODE"))));
+            partyDTO.setSpecializationName(extractValue(String.valueOf(party.get("PRTY_SPECIALIZATION"))));
+            partyDTO.setStatus(extractShortValue(String.valueOf(party.get("PRTY_STATUS"))));
 
-            customerList.add(partyDTO);
-        }*/
+            partyDTO.setContactList(partyContactService.getContactsByPartyCode(partyDTO.getPartyCode(), true));
 
-        /*paginatedPartyList.setTotalNoOfPages(tMsPartyPage.getTotalPages());
-        paginatedPartyList.setTotalNoOfRecords(tMsPartyPage.getTotalElements());*/
-        paginatedPartyList.setEntities(customerList);
+            partyList.add(partyDTO);
+        }
+
+        paginatedPartyList.setTotalNoOfPages(selectedRecordCount < size ? 1 : selectedRecordCount / size);
+        paginatedPartyList.setTotalNoOfRecords(Long.valueOf(selectedRecordCount));
+        paginatedPartyList.setEntities(partyList);
 
         return paginatedPartyList;
     }
@@ -360,25 +396,6 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
         });
 
         return partyDTOList;
-    }
-
-    private void setReferenceData(TMsParty tMsParty, PartyDTO partyDTO) {
-
-        if(tMsParty.getDepartment() != null)
-            partyDTO.setDepartmentName(tMsParty.getDepartment().getDpmtName());
-
-        if(!Strings.isNullOrEmpty(partyDTO.getGender())) {
-            final CommonReferenceDTO commonReferenceDTO = commonReferenceService
-                    .getByCmrfCodeAndCmrtCode(GENDER_TYPES.getValue(), partyDTO.getGender());
-
-            partyDTO.setGenderName(commonReferenceDTO.getDescription());
-        }
-
-        partyDTO.setContactList(partyContactService.getContactsByPartyCode(partyDTO.getPartyCode(), true));
-
-        if(!Strings.isNullOrEmpty(tMsParty.getPrtyManagedBy()))
-            partyDTO.setManagedByName(partyRepository
-                    .findByPrtyCodeAndPrtyStatus(tMsParty.getPrtyManagedBy(), STATUS_ACTIVE.getShortValue()).getPrtyName());
     }
 
     TMsParty validateByPartyCode(String partyCode) {

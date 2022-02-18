@@ -3,6 +3,7 @@ package lk.healthylife.hms.config;
 import lk.healthylife.hms.exception.DataNotFoundException;
 import lk.healthylife.hms.exception.InvalidDataException;
 import lk.healthylife.hms.exception.NoRequiredInfoException;
+import lk.healthylife.hms.util.DateConversion;
 import lk.healthylife.hms.util.constant.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
@@ -11,6 +12,8 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -51,8 +54,12 @@ public class EntityValidator {
 
         List<Long> branches = new ArrayList<>();
 
-        for (int i = 0; i < branchesArray.length; i++) {
+        /*for (int i = 0; i < branchesArray.length; i++) {
             branches.add(Long.valueOf(branchesArray[i]));
+        }*/
+
+        for(String branch : branchesArray) {
+            branches.add(Long.valueOf(branch));
         }
 
         log.info("Request came from branch {} ", branchesArray[0]);
@@ -84,5 +91,31 @@ public class EntityValidator {
         }
 
         return result.get(0);
+    }
+
+    protected String extractValue(String columnValue) {
+        return columnValue == null || columnValue.equals("null") ? null : columnValue;
+    }
+
+    protected Long extractLongValue(String columnValue) {
+        return columnValue == null || columnValue.equals("null") ? null : Long.valueOf(columnValue);
+    }
+
+    protected Short extractShortValue(String columnValue) {
+        return columnValue == null || columnValue.equals("null") ? null : Short.valueOf(columnValue);
+    }
+
+    protected Integer extractIntegerValue(String columnValue) {
+        return columnValue == null || columnValue.equals("null") ? null : Integer.valueOf(columnValue);
+    }
+
+    protected LocalDateTime extractDateTime(String columnValue) {
+        return columnValue == null || columnValue.equals("null") ? null
+                : DateConversion.convertStringToLocalDateTime(columnValue.split("\\.")[0]);
+    }
+
+    protected LocalDate extractDate(String columnValue) {
+        return columnValue == null || columnValue.equals("null") ? null
+                : DateConversion.convertStringToLocalDateTime(columnValue.split("\\.")[0]).toLocalDate();
     }
 }

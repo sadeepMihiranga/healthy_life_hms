@@ -15,10 +15,12 @@ spring:
 
   # Datasource Settings
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: ${DB_URL:jdbc:postgresql://localhost:6543/HealthylifeHMS}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:password}
+    #driver-class-name: org.postgresql.Driver
+    driver-class-name: oracle.jdbc.OracleDriver
+    #url: ${DB_URL:jdbc:postgresql://localhost:6543/HealthylifeHMS}
+    url: ${DB_URL:jdbc:oracle:thin:@localhost:1521/HEALTHY_LIFE_PDBL}
+    username: ${DB_USER:pdbadmin}
+    password: ${DB_PASSWORD:pdbadmin}
     #maxActive: 5 (This can be removed I guess. It has no effect or is deprecated)
 
     # Connection Pool Settings
@@ -39,7 +41,7 @@ spring:
     properties:
       hibernate:
         physical_naming_strategy: lk.healthylife.hms.config.PhysicalNamingStrategyImpl
-        default_schema: "HEALTHYLIFE_BASE"
+#        default_schema: "HEALTHYLIFE_BASE"
         temp:
           use_jdbc_metadata_defaults: false
         proc:
@@ -47,9 +49,10 @@ spring:
       org:
         hibernate:
           envers:
-            default_schema: "AUDIT"
+#            default_schema: "AUDIT"
             store_data_at_delete: true
-    database-platform: org.hibernate.spatial.dialect.postgis.PostgisDialect
+    #database-platform: org.hibernate.spatial.dialect.postgis.PostgisDialect
+    database-platform: org.hibernate.dialect.Oracle10gDialect
     open-in-view: true
 
 security:

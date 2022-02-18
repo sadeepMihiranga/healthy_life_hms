@@ -15,7 +15,7 @@ public class TMsUser {
 
     @Id
     @GeneratedValue(generator = "UserSequence")
-    @SequenceGenerator(name = "UserSequence", schema = "HEALTHYLIFE_BASE", sequenceName = "\"T_MS_USER_USER_ID_seq\"", allocationSize = 1)
+    @SequenceGenerator(name = "UserSequence", sequenceName = "\"T_MS_USER_USER_ID_seq\"", allocationSize = 1)
     @Column(name = "USER_ID")
     private Long userId;
 

@@ -13,6 +13,6 @@ public class CommonReferenceDTO {
     private String referenceType;
     private String description;
     private String stringValue;
-    private String numberValue;
+    private Integer numberValue;
     private Short status;
 }
