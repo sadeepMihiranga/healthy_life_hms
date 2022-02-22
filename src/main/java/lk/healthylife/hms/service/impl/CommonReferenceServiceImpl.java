@@ -7,7 +7,7 @@ import lk.healthylife.hms.entity.TRfCommonReference;
 import lk.healthylife.hms.exception.DataNotFoundException;
 import lk.healthylife.hms.exception.NoRequiredInfoException;
 import lk.healthylife.hms.mapper.CommonReferenceMapper;
-import lk.healthylife.hms.repository.CommonReferenceRepository;
+import lk.healthylife.hms.config.repository.CommonReferenceRepository;
 import lk.healthylife.hms.service.CommonReferenceService;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.query.internal.NativeQueryImpl;

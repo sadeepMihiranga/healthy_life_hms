@@ -6,21 +6,19 @@ import lk.healthylife.hms.entity.TMsParty;
 import lk.healthylife.hms.entity.TMsPartyContact;
 import lk.healthylife.hms.exception.*;
 import lk.healthylife.hms.mapper.PartyContactMapper;
-import lk.healthylife.hms.repository.PartyContactRepository;
-import lk.healthylife.hms.repository.PartyRepository;
+import lk.healthylife.hms.config.repository.PartyContactRepository;
+import lk.healthylife.hms.config.repository.PartyRepository;
 import lk.healthylife.hms.service.CommonReferenceService;
 import lk.healthylife.hms.service.PartyContactService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
 import org.hibernate.query.internal.NativeQueryImpl;
 import org.hibernate.transform.AliasToEntityMapResultTransformer;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -86,15 +84,20 @@ public class PartyContactServiceImpl extends EntityValidator implements PartyCon
         if(partyContactDTO.getContactId() == null)
             throw new NoRequiredInfoException("Party Contact Id is required");
 
-        final TMsPartyContact tMsPartyContact = partyContactRepository
-                .findByPtcnIdAndPtcnStatus(partyContactDTO.getContactId(), STATUS_ACTIVE.getShortValue());
+        final Query query = entityManager.createNativeQuery("UPDATE T_MS_PARTY_CONTACT SET PTCN_CONTACT_TYPE = ?, PTCN_CONTACT_NUMBER = ?\n" +
+                        "WHERE PTCN_ID = ? AND PTCN_STATUS = ?")
+                .setParameter(1, partyContactDTO.getContactType())
+                .setParameter(2, partyContactDTO.getContactNumber())
+                .setParameter(3, partyContactDTO.getContactId())
+                .setParameter(4, STATUS_ACTIVE.getShortValue());
 
-        if(tMsPartyContact == null)
+        final int updatedRows = query.executeUpdate();
+
+        if(updatedRows == 0)
             throw new DataNotFoundException("Contact not found for the Id " + partyContactDTO.getContactId());
 
-        tMsPartyContact.setPtcnContactNumber(partyContactDTO.getContactNumber());
-
-        return PartyContactMapper.INSTANCE.entityToDTO(persistEntity(tMsPartyContact));
+        return PartyContactMapper.INSTANCE.entityToDTO(
+                partyContactRepository.findByPtcnIdAndPtcnStatus(partyContactDTO.getContactId(), STATUS_ACTIVE.getShortValue()));
     }
 
     @Override
@@ -160,18 +163,13 @@ public class PartyContactServiceImpl extends EntityValidator implements PartyCon
 
         validatePartyCode(partyCode);
 
-        final List<TMsPartyContact> tMsPartyContactList = partyContactRepository
-                .findAllByParty_PrtyCodeAndPtcnStatus(partyCode, STATUS_ACTIVE.getShortValue());
+        final Query query = entityManager.createNativeQuery("UPDATE T_MS_PARTY_CONTACT SET PTCN_STATUS = ? " +
+                        "WHERE PTCN_PRTY_CODE = ? AND PTCN_STATUS = ?")
+                .setParameter(1, STATUS_INACTIVE.getShortValue())
+                .setParameter(2, partyCode)
+                .setParameter(3, STATUS_ACTIVE.getShortValue());
 
-        if(tMsPartyContactList.isEmpty())
-            throw new DataNotFoundException("Party Contacts not found for the Party Code : " + partyCode);
-
-        tMsPartyContactList.forEach(tMsPartyContact -> {
-            tMsPartyContact.setPtcnStatus(STATUS_INACTIVE.getShortValue());
-            persistEntity(tMsPartyContact);
-        });
-
-        return true;
+        return query.executeUpdate() == 0 ? false : true;
     }
 
     private TMsParty validatePartyCode(String partyCode) {
@@ -186,17 +184,5 @@ public class PartyContactServiceImpl extends EntityValidator implements PartyCon
             throw new DataNotFoundException("Party not found for the Code : " + partyCode);
 
         return tMsParty;
-    }
-
-    private TMsPartyContact persistEntity(TMsPartyContact tMsPartyContact) {
-        try {
-            validateEntity(tMsPartyContact);
-            return partyContactRepository.save(tMsPartyContact);
-        } catch (ObjectOptimisticLockingFailureException e) {
-            throw new TransactionConflictException("Transaction Updated by Another User.");
-        } catch (Exception e) {
-            log.error("Error while persisting : " + e.getMessage());
-            throw new OperationException(e.getMessage());
-        }
     }
 }

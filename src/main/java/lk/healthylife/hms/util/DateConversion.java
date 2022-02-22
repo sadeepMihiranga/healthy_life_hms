@@ -68,6 +68,18 @@ public final class DateConversion {
         return date;
     }
 
+    public static Date convertStringToDateTime(String dateToBeConverted) {
+        Date date = null;
+        if (dateToBeConverted != null) {
+            try {
+                date = new SimpleDateFormat(STANDARD_DATE_FORMAT_WITH_TIME, Locale.ENGLISH).parse(dateToBeConverted);
+            } catch (Exception e) {
+                Logger.getLogger("Exception - Convert String to Date : ", e.toString());
+            }
+        }
+        return date;
+    }
+
     public static String convertDateToString(Date date) {
 
         String formattedDate;
@@ -107,6 +119,20 @@ public final class DateConversion {
             return null;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(STANDARD_DATE_FORMAT_WITH_TIME);
         return LocalDateTime.parse(dateToConvert, formatter);
+    }
+
+    public static Date convertLocalDateToDate(LocalDate dateToConvert) {
+        if (dateToConvert == null)
+            return null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(STANDARD_DATE_FORMAT);
+        return convertStringToDate(dateToConvert.format(formatter));
+    }
+
+    public static Date convertLocalDateTimeToDate(LocalDateTime dateToConvert) {
+        if (dateToConvert == null)
+            return null;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(STANDARD_DATE_FORMAT_WITH_TIME);
+        return convertStringToDateTime(dateToConvert.format(formatter));
     }
 
     public static String convertLocalDateTimeToString(LocalDateTime dateToConvert) {

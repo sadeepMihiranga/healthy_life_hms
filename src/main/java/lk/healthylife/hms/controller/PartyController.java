@@ -21,7 +21,7 @@ public class PartyController {
     }
 
     @GetMapping(path = "/search")
-    public ResponseEntity<SuccessResponse> getCustomersByNamePaginated(@RequestParam(name = "name", required = false) String name,
+    public ResponseEntity<SuccessResponse> searchPartiesPaginated(@RequestParam(name = "name", required = false) String name,
                                                                        @RequestParam(name = "partyType", required = false) String partyType,
                                                                        @RequestParam(name = "page", required = true) Integer page,
                                                                        @RequestParam(name = "size", required = true) Integer size) {

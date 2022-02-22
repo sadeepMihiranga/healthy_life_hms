@@ -9,8 +9,10 @@ public enum CommonReferenceTypeCodes {
     FACILITY_TYPES("FCLTP"),
     MEASUREMENT_TYPES("UOFMS"),
     PAYMENT_TYPES("PAYTP"),
-    BLOODGROUP_TYPES("BLDGP"),
-    DOC_SPECIALIZATION_TYPES("DCSPC");
+    BLOOD_GROUP_TYPES("BLDGP"),
+    DOC_SPECIALIZATION_TYPES("DCSPC"),
+    MEDICINE_BRANDS("MDBRD"),
+    MEDICINE_TYPES("MEDTP");
 
     private String value;
     private short shortValue;

@@ -7,15 +7,20 @@ import lk.healthylife.hms.util.DateConversion;
 import lk.healthylife.hms.util.constant.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
+import org.hibernate.query.internal.NativeQueryImpl;
+import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
+import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ConstraintViolation;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -93,29 +98,39 @@ public class EntityValidator {
         return result.get(0);
     }
 
-    protected String extractValue(String columnValue) {
+    protected final String extractValue(String columnValue) {
         return columnValue == null || columnValue.equals("null") ? null : columnValue;
     }
 
-    protected Long extractLongValue(String columnValue) {
+    protected final Long extractLongValue(String columnValue) {
         return columnValue == null || columnValue.equals("null") ? null : Long.valueOf(columnValue);
     }
 
-    protected Short extractShortValue(String columnValue) {
+    protected final Short extractShortValue(String columnValue) {
         return columnValue == null || columnValue.equals("null") ? null : Short.valueOf(columnValue);
     }
 
-    protected Integer extractIntegerValue(String columnValue) {
+    protected final Integer extractIntegerValue(String columnValue) {
         return columnValue == null || columnValue.equals("null") ? null : Integer.valueOf(columnValue);
     }
 
-    protected LocalDateTime extractDateTime(String columnValue) {
+    protected final LocalDateTime extractDateTime(String columnValue) {
         return columnValue == null || columnValue.equals("null") ? null
                 : DateConversion.convertStringToLocalDateTime(columnValue.split("\\.")[0]);
     }
 
-    protected LocalDate extractDate(String columnValue) {
+    protected final LocalDate extractDate(String columnValue) {
         return columnValue == null || columnValue.equals("null") ? null
                 : DateConversion.convertStringToLocalDateTime(columnValue.split("\\.")[0]).toLocalDate();
+    }
+
+    protected final BigDecimal extractDecimalValue(String columnValue) {
+        return columnValue == null || columnValue.equals("null") ? null : BigDecimal.valueOf(Long.valueOf(columnValue).longValue());
+    }
+
+    protected final List<Map<String,Object>> extractResultSet(Query query) {
+        NativeQueryImpl nativeQuery = (NativeQueryImpl) query;
+        nativeQuery.setResultTransformer(AliasToEntityMapResultTransformer.INSTANCE);
+        return nativeQuery.getResultList();
     }
 }

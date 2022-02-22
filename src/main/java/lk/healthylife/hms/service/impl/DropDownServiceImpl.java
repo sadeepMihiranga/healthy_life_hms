@@ -4,8 +4,8 @@ import com.google.common.base.Strings;
 import lk.healthylife.hms.dto.DropDownDTO;
 import lk.healthylife.hms.exception.InvalidDataException;
 import lk.healthylife.hms.exception.NoRequiredInfoException;
-import lk.healthylife.hms.repository.FunctionRepository;
-import lk.healthylife.hms.repository.RoleRepository;
+import lk.healthylife.hms.config.repository.FunctionRepository;
+import lk.healthylife.hms.config.repository.RoleRepository;
 import lk.healthylife.hms.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,17 +23,25 @@ public class DropDownServiceImpl implements DropDownService {
     private static final String DEPARTMENTS = "DEPART";
     private static final String PERMISSIONS = "PERMIS";
     private static final String ROLES = "ROLES";
-    private static final String CUSTOMERS = "CUSTM";
-    private static final String EMPLOYEES = "EMPLY";
+    private static final String PATIENT = "PATNT";
+    private static final String DOCTOR = "DOCTR";
     private static final String ROOM_TYPES = "ROMTP";
+    private static final String ROOMS = "ROOMS";
     private static final String MEASUREMENTS_UNITS = "UOFMS";
     private static final String ITEM_TYPES = "ITMTP";
     private static final String PAYMENT_TYPES = "PAYTP";
+    private static final String MEDICINES = "MEDCN";
+    private static final String FACILITIES = "FCLTY";
+    private static final String SYMPTOMS = "SYMTP";
 
     private final BranchService branchService;
     private final DepartmentService departmentService;
     private final PartyService partyService;
     private final CommonReferenceService commonReferenceService;
+    private final RoomService roomService;
+    private final MedicineService medicineService;
+    private final FacilityService facilityService;
+    private final SymptomService symptomService;
 
     private final FunctionRepository functionRepository;
     private final RoleRepository roleRepository;
@@ -42,12 +50,20 @@ public class DropDownServiceImpl implements DropDownService {
                                DepartmentService departmentService,
                                PartyService partyService,
                                CommonReferenceService commonReferenceService,
+                               RoomService roomService,
+                               MedicineService medicineService,
+                               FacilityService facilityService,
+                               SymptomService symptomService,
                                FunctionRepository functionRepository,
                                RoleRepository roleRepository) {
         this.branchService = branchService;
         this.departmentService = departmentService;
         this.partyService = partyService;
         this.commonReferenceService = commonReferenceService;
+        this.roomService = roomService;
+        this.medicineService = medicineService;
+        this.facilityService = facilityService;
+        this.symptomService = symptomService;
         this.functionRepository = functionRepository;
         this.roleRepository = roleRepository;
     }
@@ -61,12 +77,16 @@ public class DropDownServiceImpl implements DropDownService {
         dropDownCodes.put("DEPARTMENTS", DEPARTMENTS);
         dropDownCodes.put("PERMISSIONS", PERMISSIONS);
         dropDownCodes.put("ROLES", ROLES);
-        dropDownCodes.put("CUSTOMERS", CUSTOMERS);
-        dropDownCodes.put("EMPLOYEES", EMPLOYEES);
+        dropDownCodes.put("PATIENT", PATIENT);
+        dropDownCodes.put("DOCTOR", DOCTOR);
         dropDownCodes.put("ROOM_TYPES", ROOM_TYPES);
         dropDownCodes.put("MEASUREMENTS_UNITS", MEASUREMENTS_UNITS);
         dropDownCodes.put("ITEM_TYPES", ITEM_TYPES);
         dropDownCodes.put("PAYMENT_TYPES", PAYMENT_TYPES);
+        dropDownCodes.put("ROOMS", ROOMS);
+        dropDownCodes.put("MEDICINES", MEDICINES);
+        dropDownCodes.put("FACILITIES", FACILITIES);
+        dropDownCodes.put("SYMPTOMS", SYMPTOMS);
 
         return dropDownCodes;
     }
@@ -92,10 +112,10 @@ public class DropDownServiceImpl implements DropDownService {
                 break;
             case DEPARTMENTS :
                 List<DropDownDTO> departmentList = downDTOList;
-                departmentService.getAllDepartments().forEach(departmentDTO -> {
+                departmentService.getAllDepartmentsDropdown().forEach(departmentDTO -> {
                     departmentList.add(new DropDownDTO(
                             departmentDTO.getDepartmentCode(),
-                            departmentDTO.getMame(),
+                            departmentDTO.getName(),
                             null,
                             departmentDTO.getStatus()));
                 });
@@ -120,10 +140,10 @@ public class DropDownServiceImpl implements DropDownService {
                             tMsRole.getRoleStatus()));
                 });
                 break;
-            case CUSTOMERS :
-                List<DropDownDTO> customerList = downDTOList;
-                partyService.getPartyListByType(CUSTOMERS).forEach(partyDTO -> {
-                    customerList.add(new DropDownDTO(
+            case PATIENT :
+                List<DropDownDTO> patientList = downDTOList;
+                partyService.getPartyListByType(PATIENT).forEach(partyDTO -> {
+                    patientList.add(new DropDownDTO(
                             partyDTO.getPartyCode(),
                             partyDTO.getName(),
                             null,
@@ -131,12 +151,56 @@ public class DropDownServiceImpl implements DropDownService {
                     ));
                 });
                 break;
-            case EMPLOYEES :
-                List<DropDownDTO> roomList = downDTOList;
-                partyService.getPartyListByType(EMPLOYEES).forEach(partyDTO -> {
-                    roomList.add(new DropDownDTO(
+            case DOCTOR :
+                List<DropDownDTO> doctorList = downDTOList;
+                partyService.getPartyListByType(DOCTOR).forEach(partyDTO -> {
+                    doctorList.add(new DropDownDTO(
                             partyDTO.getPartyCode(),
                             partyDTO.getName(),
+                            null,
+                            null
+                    ));
+                });
+                break;
+            case ROOMS :
+                List<DropDownDTO> roomList = downDTOList;
+                roomService.getAllRoomsDropdown().forEach(roomDTO -> {
+                    roomList.add(new DropDownDTO(
+                            String.valueOf(roomDTO.getRoomId()),
+                            roomDTO.getRoomNo(),
+                            null,
+                            null
+                    ));
+                });
+                break;
+            case MEDICINES :
+                List<DropDownDTO> medicineList = downDTOList;
+                medicineService.getAllMedicinesDropdown().forEach(medicineDTO -> {
+                    medicineList.add(new DropDownDTO(
+                            String.valueOf(medicineDTO.getMedicineId()),
+                            medicineDTO.getName(),
+                            null,
+                            null
+                    ));
+                });
+                break;
+            case FACILITIES :
+                List<DropDownDTO> facilityList = downDTOList;
+                facilityService.getAllFacilitiesDropdown().forEach(facilityDTO -> {
+                    facilityList.add(new DropDownDTO(
+                            String.valueOf(facilityDTO.getFacilityId()),
+                            facilityDTO.getName(),
+                            null,
+                            null
+                    ));
+                });
+                break;
+            case SYMPTOMS :
+                List<DropDownDTO> symmptomList = downDTOList;
+                symptomService.getAllSymptomsDropdown().forEach(symptomDTO -> {
+                    symmptomList.add(new DropDownDTO(
+                            String.valueOf(symptomService.getAllSymptomsDropdown()),
+                            symptomDTO.getName(),
                             null,
                             null
                     ));

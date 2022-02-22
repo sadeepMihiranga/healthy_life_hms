@@ -1,8 +1,8 @@
 package lk.healthylife.hms.service.impl;
 
 import lk.healthylife.hms.entity.TMsPartyToken;
-import lk.healthylife.hms.repository.PartyTokenRepository;
-import lk.healthylife.hms.repository.SequenceGeneratorRepository;
+import lk.healthylife.hms.config.repository.PartyTokenRepository;
+import lk.healthylife.hms.config.repository.SequenceGeneratorRepository;
 import lk.healthylife.hms.service.PartyTokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

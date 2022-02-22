@@ -3,7 +3,7 @@ package lk.healthylife.hms.service.impl;
 import lk.healthylife.hms.dto.BranchDTO;
 import lk.healthylife.hms.entity.TRfBranch;
 import lk.healthylife.hms.mapper.BranchMapper;
-import lk.healthylife.hms.repository.BranchRepository;
+import lk.healthylife.hms.config.repository.BranchRepository;
 import lk.healthylife.hms.service.BranchService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

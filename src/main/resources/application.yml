@@ -18,9 +18,12 @@ spring:
     #driver-class-name: org.postgresql.Driver
     driver-class-name: oracle.jdbc.OracleDriver
     #url: ${DB_URL:jdbc:postgresql://localhost:6543/HealthylifeHMS}
-    url: ${DB_URL:jdbc:oracle:thin:@localhost:1521/HEALTHY_LIFE_PDBL}
-    username: ${DB_USER:pdbadmin}
-    password: ${DB_PASSWORD:pdbadmin}
+    #url: ${DB_URL:jdbc:oracle:thin:@localhost:1521/HEALTHY_LIFE_PDBL}
+    url: jdbc:oracle:thin:@healthylife_high?TNS_ADMIN=/wallet_healthylife
+    #username: ${DB_USER:pdbadmin}
+    username: ADMIN
+    #password: ${DB_PASSWORD:pdbadmin}
+    password: Hladm3in@oraClo23
     #maxActive: 5 (This can be removed I guess. It has no effect or is deprecated)
 
     # Connection Pool Settings

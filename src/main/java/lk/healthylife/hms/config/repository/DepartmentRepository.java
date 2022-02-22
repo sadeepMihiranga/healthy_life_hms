@@ -1,4 +1,4 @@
-package lk.healthylife.hms.repository;
+package lk.healthylife.hms.config.repository;
 
 import lk.healthylife.hms.entity.TMsDepartment;
 import org.springframework.data.jpa.repository.JpaRepository;

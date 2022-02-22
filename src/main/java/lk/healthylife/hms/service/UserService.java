@@ -29,7 +29,7 @@ public interface UserService {
 
     Long removeUserById(Long userId);
 
-    Boolean removeUserByPartyCode(String partyCode);
+    Boolean removeUserByPartyCode(String partyCode, Boolean isPartyValidated);
 
     Boolean assignRoleToUser(Long userId, List<String> roles);
 

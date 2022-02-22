@@ -1,0 +1,12 @@
+healthylife_high = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-hyderabad-1.oraclecloud.com))(connect_data=(service_name=g2b361dec939713_healthylife_high.adb.oraclecloud.com))(security=(ssl_server_cert_dn="CN=adb.ap-hyderabad-1.oraclecloud.com, OU=Oracle ADB HYDERABAD, O=Oracle Corporation, L=Redwood City, ST=California, C=US")))
+
+healthylife_low = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-hyderabad-1.oraclecloud.com))(connect_data=(service_name=g2b361dec939713_healthylife_low.adb.oraclecloud.com))(security=(ssl_server_cert_dn="CN=adb.ap-hyderabad-1.oraclecloud.com, OU=Oracle ADB HYDERABAD, O=Oracle Corporation, L=Redwood City, ST=California, C=US")))
+
+healthylife_medium = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-hyderabad-1.oraclecloud.com))(connect_data=(service_name=g2b361dec939713_healthylife_medium.adb.oraclecloud.com))(security=(ssl_server_cert_dn="CN=adb.ap-hyderabad-1.oraclecloud.com, OU=Oracle ADB HYDERABAD, O=Oracle Corporation, L=Redwood City, ST=California, C=US")))
+
+healthylife_tp = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-hyderabad-1.oraclecloud.com))(connect_data=(service_name=g2b361dec939713_healthylife_tp.adb.oraclecloud.com))(security=(ssl_server_cert_dn="CN=adb.ap-hyderabad-1.oraclecloud.com, OU=Oracle ADB HYDERABAD, O=Oracle Corporation, L=Redwood City, ST=California, C=US")))
+
+healthylife_tpurgent = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-hyderabad-1.oraclecloud.com))(connect_data=(service_name=g2b361dec939713_healthylife_tpurgent.adb.oraclecloud.com))(security=(ssl_server_cert_dn="CN=adb.ap-hyderabad-1.oraclecloud.com, OU=Oracle ADB HYDERABAD, O=Oracle Corporation, L=Redwood City, ST=California, C=US")))
+
+
+

@@ -6,28 +6,25 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DepartmentDTO implements Paginated {
+public class FacilityDTO implements Paginated {
 
-    private String departmentCode;
-    @NotBlank(message = "Department Name is mandatory")
+    private Long facilityId;
+    @NotBlank(message = "Facility Name is mandatory")
     private String name;
     private String description;
     private Short status;
-    private String departmentHead;
-    private String departmentHeadName;
+    private Long branchId;
+    private String branchName;
     private LocalDateTime createdDate;
     private String createdUserCode;
     private LocalDateTime lastUpdatedDate;
     private String lastUpdatedUserCode;
-    private List<DepartmentLocationDTO> departmentLocations;
-    private List<DepartmentFacilityDTO> departmentFacilities;
 
-    public DepartmentDTO(String departmentCode) {
-        this.departmentCode = departmentCode;
+    public FacilityDTO(Long facilityId) {
+        this.facilityId = facilityId;
     }
 }

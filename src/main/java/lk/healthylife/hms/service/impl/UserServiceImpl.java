@@ -1,6 +1,7 @@
 package lk.healthylife.hms.service.impl;
 
 import lk.healthylife.hms.config.EntityValidator;
+import lk.healthylife.hms.config.repository.*;
 import lk.healthylife.hms.dto.BranchDTO;
 import lk.healthylife.hms.dto.FunctionDTO;
 import lk.healthylife.hms.dto.PaginatedEntity;
@@ -9,7 +10,6 @@ import lk.healthylife.hms.entity.*;
 import lk.healthylife.hms.exception.*;
 import lk.healthylife.hms.mapper.RoleMapper;
 import lk.healthylife.hms.mapper.UserMapper;
-import lk.healthylife.hms.repository.*;
 import lk.healthylife.hms.security.User;
 import lk.healthylife.hms.service.PartyContactService;
 import lk.healthylife.hms.service.UserService;
@@ -30,6 +30,7 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static lk.healthylife.hms.util.constant.Constants.STATUS_ACTIVE;
@@ -451,15 +452,17 @@ public class UserServiceImpl extends EntityValidator implements UserService, Use
     }
 
     @Override
-    public Boolean removeUserByPartyCode(String partyCode) {
+    public Boolean removeUserByPartyCode(String partyCode, Boolean isPartyValidated) {
 
         if (Strings.isNullOrEmpty(partyCode))
             throw new InvalidDataException("Party Code is required");
 
-        final TMsParty tMsParty = partyRepository.findByPrtyCodeAndPrtyStatus(partyCode, STATUS_ACTIVE.getShortValue());
+        if(!isPartyValidated) {
+            final TMsParty tMsParty = partyRepository.findByPrtyCodeAndPrtyStatus(partyCode, STATUS_ACTIVE.getShortValue());
 
-        if(tMsParty == null)
-            throw new DataNotFoundException("Party not found for the Code : " + partyCode);
+            if(tMsParty == null)
+                throw new DataNotFoundException("Party not found for the Code : " + partyCode);
+        }
 
         TMsUser tMsUser = userRepository.findByParty_PrtyCodeAndUserStatus(partyCode, STATUS_ACTIVE.getShortValue());
 
