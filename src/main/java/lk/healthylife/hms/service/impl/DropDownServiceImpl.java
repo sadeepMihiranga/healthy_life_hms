@@ -31,8 +31,10 @@ public class DropDownServiceImpl implements DropDownService {
     private static final String ITEM_TYPES = "ITMTP";
     private static final String PAYMENT_TYPES = "PAYTP";
     private static final String MEDICINES = "MEDCN";
+    private static final String MEDICINE_TYPES = "MEDTP";
     private static final String FACILITIES = "FCLTY";
     private static final String SYMPTOMS = "SYMTP";
+    private static final String MEDICINE_BRANDS = "MDBRD";
 
     private final BranchService branchService;
     private final DepartmentService departmentService;
@@ -196,10 +198,10 @@ public class DropDownServiceImpl implements DropDownService {
                 });
                 break;
             case SYMPTOMS :
-                List<DropDownDTO> symmptomList = downDTOList;
+                List<DropDownDTO> symptomList = downDTOList;
                 symptomService.getAllSymptomsDropdown().forEach(symptomDTO -> {
-                    symmptomList.add(new DropDownDTO(
-                            String.valueOf(symptomService.getAllSymptomsDropdown()),
+                    symptomList.add(new DropDownDTO(
+                            String.valueOf(symptomDTO.getSymptomId()),
                             symptomDTO.getName(),
                             null,
                             null
