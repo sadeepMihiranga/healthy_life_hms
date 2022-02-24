@@ -50,7 +50,7 @@ public class SymptomServiceImpl extends EntityValidator implements SymptomServic
     }
 
     @Override
-    public SymptomDTO getSymptomById(String symptomId) {
+    public SymptomDTO getSymptomById(Long symptomId) {
 
         SymptomDTO symptomDTO = null;
 

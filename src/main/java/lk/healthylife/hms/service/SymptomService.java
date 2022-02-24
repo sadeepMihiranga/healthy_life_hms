@@ -8,5 +8,5 @@ public interface SymptomService {
 
     List<SymptomDTO> getAllSymptomsDropdown();
 
-    SymptomDTO getSymptomById(String symptomId);
+    SymptomDTO getSymptomById(Long symptomId);
 }
