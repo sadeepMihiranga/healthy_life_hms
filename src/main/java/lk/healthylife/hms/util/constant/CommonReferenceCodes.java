@@ -12,7 +12,9 @@ public enum CommonReferenceCodes {
 
     PAYMENT_CASH("PTCASH"),
     PAYMENT_BANK_DEPOSIT("PTBDEP"),
-    PAYMENT_ONLINE_TRANSFER("PTONLN");
+    PAYMENT_ONLINE_TRANSFER("PTONLN"),
+
+    MODE_3_TIMES("PM3TPD");
 
     private String value;
     private short shortValue;

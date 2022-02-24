@@ -59,10 +59,6 @@ public class EntityValidator {
 
         List<Long> branches = new ArrayList<>();
 
-        /*for (int i = 0; i < branchesArray.length; i++) {
-            branches.add(Long.valueOf(branchesArray[i]));
-        }*/
-
         for(String branch : branchesArray) {
             branches.add(Long.valueOf(branch));
         }

@@ -2,7 +2,6 @@ package lk.healthylife.hms.service.impl;
 
 import lk.healthylife.hms.config.AuditorAwareImpl;
 import lk.healthylife.hms.config.EntityValidator;
-import lk.healthylife.hms.dto.FacilityDTO;
 import lk.healthylife.hms.dto.PaginatedEntity;
 import lk.healthylife.hms.dto.PrescriptionDTO;
 import lk.healthylife.hms.dto.PrescriptionMedicineDTO;
@@ -64,7 +63,7 @@ public class PrescriptionServiceImpl extends EntityValidator implements Prescrip
             CallableStatement statement = connection
                     .prepareCall("{CALL INSERT INTO T_TR_PRESCRIPTION (PREC_PATIENT_CODE, PREC_DOCTOR_CODE, PREC_REMARKS,\n" +
                             "PREC_STATUS, CREATED_DATE, CREATED_USER_CODE, PREC_BRANCH_ID)\n" +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?); RETURNING PREC_ID INTO ?}");
+                            "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING PREC_ID INTO ?}");
 
             statement.setString(1, prescriptionDTO.getPatientCode());
             statement.setString(2, prescriptionDTO.getDoctorCode());
@@ -81,14 +80,13 @@ public class PrescriptionServiceImpl extends EntityValidator implements Prescrip
             if (updateCount > 0)
                 insertedRowId = BigInteger.valueOf(statement.getLong(8));
 
+            for(PrescriptionMedicineDTO prescriptionMedicineDTO : prescriptionDTO.getPrescriptionMedicines()) {
+                prescriptionMedicineDTO.setPrescriptionId(insertedRowId.longValue());
+                prescriptionMedicineService.createPrescriptionMedicine(prescriptionMedicineDTO);
+            }
         } catch (Exception e) {
             log.error("Error while persisting Prescription : " + e.getMessage());
             throw new OperationException("Error while persisting Prescription");
-        }
-
-        for(PrescriptionMedicineDTO prescriptionMedicineDTO : prescriptionDTO.getPrescriptionMedicines()) {
-            prescriptionMedicineDTO.setPrescriptionId(insertedRowId.longValue());
-            prescriptionMedicineService.createPrescriptionMedicine(prescriptionMedicineDTO);
         }
 
         return getPrescriptionById(insertedRowId.longValue());
@@ -103,7 +101,7 @@ public class PrescriptionServiceImpl extends EntityValidator implements Prescrip
 
         final String queryString = "SELECT p.PREC_ID, p.PREC_PATIENT_CODE, p.PREC_DOCTOR_CODE, p.PREC_REMARKS, p.PREC_STATUS, \n" +
                 "p.CREATED_DATE, p.LAST_MOD_DATE, p.CREATED_USER_CODE, p.LAST_MOD_USER_CODE, br.BRNH_NAME AS BRANCH_NAME,\n" +
-                "patient.PRTY_NAME AS PATIENT_NAME, doc.PRTY_NAME AS DOCTOR_NAME, patient.PRTY_NIC AS PATIENT_NIC\n" +
+                "p.PREC_BRANCH_ID, patient.PRTY_NAME AS PATIENT_NAME, doc.PRTY_NAME AS DOCTOR_NAME, patient.PRTY_NIC AS PATIENT_NIC\n" +
                 "FROM T_TR_PRESCRIPTION p\n" +
                 "INNER JOIN T_RF_BRANCH br ON p.PREC_BRANCH_ID = br.BRNH_ID\n" +
                 "INNER JOIN T_MS_PARTY patient ON p.PREC_PATIENT_CODE = patient.PRTY_CODE\n" +
@@ -165,7 +163,7 @@ public class PrescriptionServiceImpl extends EntityValidator implements Prescrip
 
         final String queryString = "SELECT p.PREC_ID, p.PREC_PATIENT_CODE, p.PREC_DOCTOR_CODE, p.PREC_REMARKS, p.PREC_STATUS,\n" +
                 "p.CREATED_DATE, p.LAST_MOD_DATE, p.CREATED_USER_CODE, p.LAST_MOD_USER_CODE, br.BRNH_NAME AS BRANCH_NAME,\n" +
-                "patient.PRTY_NAME AS PATIENT_NAME, doc.PRTY_NAME AS DOCTOR_NAME, patient.PRTY_NIC AS PATIENT_NIC\n" +
+                "p.PREC_BRANCH_ID, patient.PRTY_NAME AS PATIENT_NAME, doc.PRTY_NAME AS DOCTOR_NAME, patient.PRTY_NIC AS PATIENT_NIC\n" +
                 "FROM T_TR_PRESCRIPTION p\n" +
                 "INNER JOIN T_RF_BRANCH br ON p.PREC_BRANCH_ID = br.BRNH_ID\n" +
                 "INNER JOIN T_MS_PARTY patient ON p.PREC_PATIENT_CODE = patient.PRTY_CODE\n" +
@@ -208,6 +206,7 @@ public class PrescriptionServiceImpl extends EntityValidator implements Prescrip
         return paginatedPrescriptionList;
     }
 
+    @Transactional
     @Override
     public Boolean removePrescription(Long prescriptionId) {
 
@@ -220,7 +219,12 @@ public class PrescriptionServiceImpl extends EntityValidator implements Prescrip
                 .setParameter("statusActive", STATUS_ACTIVE.getShortValue())
                 .setParameter("branchIdList", captureBranchIds());
 
-        return query.executeUpdate() == 0 ? false : true;
+        int updatedRows = query.executeUpdate();
+
+        if(updatedRows > 0)
+            prescriptionMedicineService.removePrescriptionMedicineByPrescription(prescriptionId);
+
+        return updatedRows == 0 ? false : true;
     }
 
     private void validatePrescriptionId(Long prescriptionId) {

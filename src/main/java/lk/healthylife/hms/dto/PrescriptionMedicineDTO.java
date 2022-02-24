@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -19,6 +20,14 @@ public class PrescriptionMedicineDTO {
     @NotNull(message = "Medicine Id is mandatory")
     private Long medicineId;
     private String remarks;
+    @NotNull(message = "Prescribe Mode is mandatory")
+    private String prescribeMode;
+    private String prescribeModeName;
+    @NotNull(message = "Prescribe Duration in Days is mandatory")
+    private Integer prescribeDurationDays;
+    private String prescribeMealTime;
+    private String prescribeMealTimeName;
+    private Integer quantity;
     private Short status;
     private Long branchId;
     private String branchName;

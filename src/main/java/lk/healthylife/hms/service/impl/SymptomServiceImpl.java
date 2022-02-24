@@ -60,7 +60,7 @@ public class SymptomServiceImpl extends EntityValidator implements SymptomServic
         final String queryString = "SELECT s.SYMP_ID, s.SYMP_NAME, s.SYMP_DESCRIPTION, s.SYMP_TYPE, s.CREATED_DATE, \n" +
                 "s.LAST_MOD_DATE, s.CREATED_USER_CODE, s.LAST_MOD_USER_CODE, type.CMRF_DESCRIPTION AS TYPE_NAME\n" +
                 "FROM T_MS_SYMPTOM s\n" +
-                "LEFT JOIN T_RF_COMMON_REFERENCE type ON s.MEDI_BRAND = type.CMRF_CODE\n" +
+                "LEFT JOIN T_RF_COMMON_REFERENCE type ON s.SYMP_TYPE = type.CMRF_CODE\n" +
                 "WHERE s.SYMP_ID = :symptomId";
 
         Query query = entityManager.createNativeQuery(queryString);

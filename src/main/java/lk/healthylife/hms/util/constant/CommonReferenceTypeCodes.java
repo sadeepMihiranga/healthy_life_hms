@@ -12,7 +12,8 @@ public enum CommonReferenceTypeCodes {
     BLOOD_GROUP_TYPES("BLDGP"),
     DOC_SPECIALIZATION_TYPES("DCSPC"),
     MEDICINE_BRANDS("MDBRD"),
-    MEDICINE_TYPES("MEDTP");
+    MEDICINE_TYPES("MEDTP"),
+    PRESCRIBE_MODES("MDPMD");
 
     private String value;
     private short shortValue;

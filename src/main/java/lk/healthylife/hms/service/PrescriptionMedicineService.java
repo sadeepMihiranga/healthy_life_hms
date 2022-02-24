@@ -11,4 +11,6 @@ public interface PrescriptionMedicineService {
     PrescriptionMedicineDTO getPrescriptionMedicineById(Long prescriptionMedicineId);
 
     List<PrescriptionMedicineDTO> getPrescriptionMedicineListByPrescriptionId(Long prescriptionId);
+
+    Boolean removePrescriptionMedicineByPrescription(Long prescriptionId);
 }
