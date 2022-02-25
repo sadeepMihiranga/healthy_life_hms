@@ -88,7 +88,6 @@ public class FacilityServiceImpl extends EntityValidator implements FacilityServ
 
         try (Connection connection = dataSource.getConnection()) {
 
-
             CallableStatement statement = connection
                     .prepareCall("{CALL INSERT INTO T_MS_FACILITY(FCLT_NAME, FCLT_DESCRIPTION, FCLT_STATUS,\n" +
                             "CREATED_DATE, CREATED_USER_CODE, FCLT_BRANCH_ID) VALUES (?, ?, ?, ?, ?, ?) RETURNING FCLT_ID INTO ?}");

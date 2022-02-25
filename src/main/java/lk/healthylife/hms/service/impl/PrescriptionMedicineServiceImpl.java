@@ -11,7 +11,6 @@ import lk.healthylife.hms.service.CommonReferenceService;
 import lk.healthylife.hms.service.MedicineService;
 import lk.healthylife.hms.service.PrescriptionMedicineService;
 import lk.healthylife.hms.service.SymptomService;
-import lk.healthylife.hms.util.constant.CommonReferenceCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -30,10 +29,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static lk.healthylife.hms.util.constant.CommonReferenceTypeCodes.PRESCRIBE_MODES;
 import static lk.healthylife.hms.util.constant.Constants.STATUS_ACTIVE;
 import static lk.healthylife.hms.util.constant.Constants.STATUS_INACTIVE;
-import static lk.healthylife.hms.util.constant.CommonReferenceCodes.*;
-import static lk.healthylife.hms.util.constant.CommonReferenceTypeCodes.*;
 
 @Slf4j
 @Service

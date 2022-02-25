@@ -121,7 +121,7 @@ public class EntityValidator {
     }
 
     protected final BigDecimal extractDecimalValue(String columnValue) {
-        return columnValue == null || columnValue.equals("null") ? null : BigDecimal.valueOf(Long.valueOf(columnValue).longValue());
+        return columnValue == null || columnValue.equals("null") ? null : BigDecimal.valueOf(Double.valueOf(columnValue));
     }
 
     protected final List<Map<String,Object>> extractResultSet(Query query) {

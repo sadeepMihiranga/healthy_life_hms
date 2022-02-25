@@ -35,6 +35,7 @@ public class DropDownServiceImpl implements DropDownService {
     private static final String FACILITIES = "FCLTY";
     private static final String SYMPTOMS = "SYMTP";
     private static final String MEDICINE_BRANDS = "MDBRD";
+    private static final String SURGERIES = "SUGRIS";
 
     private final BranchService branchService;
     private final DepartmentService departmentService;
@@ -44,6 +45,7 @@ public class DropDownServiceImpl implements DropDownService {
     private final MedicineService medicineService;
     private final FacilityService facilityService;
     private final SymptomService symptomService;
+    private final SurgeryService surgeryService;
 
     private final FunctionRepository functionRepository;
     private final RoleRepository roleRepository;
@@ -56,6 +58,7 @@ public class DropDownServiceImpl implements DropDownService {
                                MedicineService medicineService,
                                FacilityService facilityService,
                                SymptomService symptomService,
+                               SurgeryService surgeryService,
                                FunctionRepository functionRepository,
                                RoleRepository roleRepository) {
         this.branchService = branchService;
@@ -66,6 +69,7 @@ public class DropDownServiceImpl implements DropDownService {
         this.medicineService = medicineService;
         this.facilityService = facilityService;
         this.symptomService = symptomService;
+        this.surgeryService = surgeryService;
         this.functionRepository = functionRepository;
         this.roleRepository = roleRepository;
     }
@@ -89,6 +93,7 @@ public class DropDownServiceImpl implements DropDownService {
         dropDownCodes.put("MEDICINES", MEDICINES);
         dropDownCodes.put("FACILITIES", FACILITIES);
         dropDownCodes.put("SYMPTOMS", SYMPTOMS);
+        dropDownCodes.put("SURGERIES", SURGERIES);
 
         return dropDownCodes;
     }
@@ -203,6 +208,17 @@ public class DropDownServiceImpl implements DropDownService {
                     symptomList.add(new DropDownDTO(
                             String.valueOf(symptomDTO.getSymptomId()),
                             symptomDTO.getName(),
+                            null,
+                            null
+                    ));
+                });
+                break;
+            case SURGERIES :
+                List<DropDownDTO> surgeriesList = downDTOList;
+                surgeryService.getAllSurgeriesDropdown().forEach(surgeryDTO -> {
+                    surgeriesList.add(new DropDownDTO(
+                            String.valueOf(surgeryDTO.getSurgeryId()),
+                            surgeryDTO.getName(),
                             null,
                             null
                     ));

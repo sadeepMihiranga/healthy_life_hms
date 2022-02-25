@@ -227,7 +227,6 @@ public class MedicineServiceImpl extends EntityValidator implements MedicineServ
                 "AND (upper(md.MEDI_NAME) LIKE ('%'||upper(:name)||'%')) \n" +
                 "ORDER BY md.CREATED_DATE OFFSET :page ROWS FETCH NEXT :size ROWS ONLY";
 
-
         query = entityManager.createNativeQuery(queryString);
 
         query.setParameter("status", STATUS_ACTIVE.getShortValue());

@@ -13,7 +13,8 @@ public enum CommonReferenceTypeCodes {
     DOC_SPECIALIZATION_TYPES("DCSPC"),
     MEDICINE_BRANDS("MDBRD"),
     MEDICINE_TYPES("MEDTP"),
-    PRESCRIBE_MODES("MDPMD");
+    PRESCRIBE_MODES("MDPMD"),
+    SURGERY_TYPES("SRGTP");
 
     private String value;
     private short shortValue;
