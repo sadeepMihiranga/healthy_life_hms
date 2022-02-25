@@ -15,6 +15,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -72,6 +73,7 @@ public class DepartmentFacilityServiceImpl extends EntityValidator implements De
                 insertedRowId = BigInteger.valueOf(statement.getLong(7));
 
         } catch (Exception e) {
+            e.printStackTrace();
             log.error("Error while persisting Department Facility : " + e.getMessage());
             throw new OperationException("Error while persisting Department Facility");
         }

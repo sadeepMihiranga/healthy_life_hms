@@ -7,7 +7,6 @@ import lk.healthylife.hms.dto.RoomDTO;
 import lk.healthylife.hms.exception.NoRequiredInfoException;
 import lk.healthylife.hms.exception.OperationException;
 import lk.healthylife.hms.service.CommonReferenceService;
-import lk.healthylife.hms.service.DepartmentService;
 import lk.healthylife.hms.service.RoomService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
@@ -32,7 +31,6 @@ import static lk.healthylife.hms.util.constant.Constants.STATUS_INACTIVE;
 public class RoomServiceImpl extends EntityValidator implements RoomService {
 
     private final CommonReferenceService commonReferenceService;
-    private final DepartmentService departmentService;
 
     private final AuditorAwareImpl auditorAware;
 
@@ -40,9 +38,8 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
     private EntityManager entityManager;
 
     public RoomServiceImpl(CommonReferenceService commonReferenceService,
-                           DepartmentService departmentService, AuditorAwareImpl auditorAware) {
+                           AuditorAwareImpl auditorAware) {
         this.commonReferenceService = commonReferenceService;
-        this.departmentService = departmentService;
         this.auditorAware = auditorAware;
     }
 
@@ -89,7 +86,7 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
 
         try {
             final Query query = entityManager.createNativeQuery("INSERT INTO T_MS_ROOM (ROOM_NO, ROOM_TYPE, ROOM_PER_DAY_CHARGE,\n" +
-                            "ROOM_DESCRIPTION, ROOM_BRANCH_ID, ROOM_STATUS, CREATED_DATE, CREATED_USER_CODE, ROOM_DEPARTMENT_CODE)\n" +
+                            "ROOM_DESCRIPTION, ROOM_BRANCH_ID, ROOM_STATUS, CREATED_DATE, CREATED_USER_CODE)\n" +
                             "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)")
                     .setParameter(1, roomDTO.getRoomNo())
                     .setParameter(2, roomDTO.getRoomType())
@@ -98,8 +95,7 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
                     .setParameter(5, captureBranchIds().get(0))
                     .setParameter(6, STATUS_ACTIVE.getShortValue())
                     .setParameter(7, LocalDateTime.now())
-                    .setParameter(8, auditorAware.getCurrentAuditor().get())
-                    .setParameter(9, roomDTO.getDepartment().getDepartmentCode());
+                    .setParameter(8, auditorAware.getCurrentAuditor().get());
 
             query.executeUpdate();
         } catch (Exception e) {
@@ -122,7 +118,7 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
 
         final Query query = entityManager.createNativeQuery("UPDATE T_MS_ROOM SET ROOM_NO = :roomNo, ROOM_TYPE = :roomType, \n" +
                         "ROOM_PER_DAY_CHARGE = :charge, ROOM_DESCRIPTION = :description, LAST_MOD_DATE = :lastModDate,\n" +
-                        "LAST_MOD_USER_CODE = :lastModUser, ROOM_DEPARTMENT_CODE = :departmentCode\n" +
+                        "LAST_MOD_USER_CODE = :lastModUser\n" +
                         "WHERE ROOM_STATUS = :status AND ROOM_ID = :roomId AND ROOM_BRANCH_ID IN (:branchIdList)")
                 .setParameter("roomNo", roomDTO.getRoomNo())
                 .setParameter("roomType", roomDTO.getRoomType())
@@ -132,7 +128,6 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
                 .setParameter("lastModUser", auditorAware.getCurrentAuditor().get())
                 .setParameter("status", STATUS_ACTIVE.getShortValue())
                 .setParameter("roomId", roomId)
-                .setParameter("departmentCode", roomDTO.getDepartment().getDepartmentCode())
                 .setParameter("branchIdList", captureBranchIds());
 
         query.executeUpdate();
@@ -292,7 +287,6 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
         roomDTO.setCreatedUserCode(extractValue(String.valueOf(room.get("CREATED_USER_CODE"))));
         roomDTO.setLastUpdatedDate(extractDateTime(String.valueOf(room.get("LAST_MOD_DATE"))));
         roomDTO.setLastUpdatedUserCode(extractValue(String.valueOf(room.get("LAST_MOD_USER_CODE"))));
-        roomDTO.setDepartment(departmentService.getDepartmentByCode(extractValue(String.valueOf(room.get("ROOM_DEPARTMENT_CODE")))));
     }
 
     private void validateRoomId(Long roomId) {

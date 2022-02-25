@@ -3,8 +3,8 @@ package lk.healthylife.hms.util.constant;
 public enum CommonReferenceCodes {
 
     /** party types */
-    PARTY_TYPE_CUSTOMER("CUSTM"),
-    PARTY_TYPE_EMPLOYEE("EMPLY"),
+    PARTY_TYPE_PATIENT("PATNT"),
+    PARTY_TYPE_DOCTOR("DOCTR"),
 
     /** party contact types */
     PARTY_CONTACT_MOBILE("CNMBL"),

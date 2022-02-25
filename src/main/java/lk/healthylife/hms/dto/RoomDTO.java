@@ -28,7 +28,6 @@ public class RoomDTO implements Paginated {
     private String createdUserCode;
     private LocalDateTime lastUpdatedDate;
     private String lastUpdatedUserCode;
-    private DepartmentDTO department;
 
     public RoomDTO(Long roomId) {
         this.roomId = roomId;

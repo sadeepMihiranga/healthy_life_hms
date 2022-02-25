@@ -159,8 +159,8 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
                 "LEFT JOIN \"T_RF_COMMON_REFERENCE\" type ON p.\"PRTY_TYPE\" = type.\"CMRF_CODE\"\n" +
                 "LEFT JOIN \"T_RF_BRANCH\" br ON p.\"PRTY_BRANCH_ID\" = br.\"BRNH_ID\"\n" +
                 "LEFT JOIN \"T_RF_COMMON_REFERENCE\" dspec ON p.\"PRTY_SPECIALIZATION_CODE\" = dspec.\"CMRF_CODE\"\n" +
-                "WHERE p.\"PRTY_STATUS\"=:status\n" +
-                //"  AND (p.\"PRTY_BRANCH_ID\" IN (:branchIdList))\n" +
+                "WHERE p.\"PRTY_STATUS\" = :status\n" +
+                "AND p.\"PRTY_CODE\" = :partyCode\n" +
                 "GROUP BY p.\"PRTY_CODE\", p.\"LAST_MOD_DATE\", p.\"CREATED_DATE\", p.\"CREATED_USER_CODE\", \n" +
                 "         p.\"LAST_MOD_USER_CODE\", p.\"PRTY_BRANCH_ID\", p.\"PRTY_DEPARTMENT_CODE\", \n" +
                 "         p.\"PRTY_ADDRESS_1\", p.\"PRTY_ADDRESS_2\", p.\"PRTY_ADDRESS_3\", p.\"PRTY_BLOOD_GROUP\", \n" +
@@ -171,7 +171,7 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
         Query query = entityManager.createNativeQuery(queryString);
 
         query.setParameter("status", STATUS_ACTIVE.getShortValue());
-        //query.setParameter("branchIdList", captureBranchIds());
+        query.setParameter("partyCode", partyCode);
 
         List<Map<String,Object>> result = extractResultSet(query);
 

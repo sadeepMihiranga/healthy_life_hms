@@ -47,7 +47,6 @@ public class DepartmentLocationServiceImpl extends EntityValidator implements De
         this.dataSource = dataSource;
     }
 
-    @Transactional
     @Override
     public DepartmentLocationDTO addLocationToDepartment(String departmentCode, DepartmentLocationDTO departmentLocationDTO) {
 
@@ -57,7 +56,7 @@ public class DepartmentLocationServiceImpl extends EntityValidator implements De
 
             CallableStatement statement = connection.prepareCall("{CALL INSERT INTO T_RF_DEPARTMENT_LOCATION (DPLC_NAME, " +
                     "DPLC_ROOM_ID, DPLC_DEPARTMENT_CODE, CREATED_DATE, CREATED_USER_CODE, DPLC_STATUS, DPLC_BRANCH_ID)\n" +
-                    "VALUES (?, ?, ?, ?, ?, ?) RETURNING DPLC_ID INTO ?}");
+                    "VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING DPLC_ID INTO ?}");
 
             statement.setString(1, Strings.isNullOrEmpty(departmentLocationDTO.getName()) ? null : departmentLocationDTO.getName());
             statement.setLong(2, departmentLocationDTO.getRoom().getRoomId());

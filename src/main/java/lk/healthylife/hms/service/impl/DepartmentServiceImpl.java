@@ -3,13 +3,15 @@ package lk.healthylife.hms.service.impl;
 import lk.healthylife.hms.config.AuditorAwareImpl;
 import lk.healthylife.hms.config.EntityValidator;
 import lk.healthylife.hms.config.repository.NumberGeneratorRepository;
-import lk.healthylife.hms.dto.DepartmentDTO;
-import lk.healthylife.hms.dto.PaginatedEntity;
+import lk.healthylife.hms.dto.*;
+import lk.healthylife.hms.exception.InvalidDataException;
 import lk.healthylife.hms.exception.NoRequiredInfoException;
 import lk.healthylife.hms.exception.OperationException;
 import lk.healthylife.hms.service.DepartmentFacilityService;
 import lk.healthylife.hms.service.DepartmentLocationService;
 import lk.healthylife.hms.service.DepartmentService;
+import lk.healthylife.hms.service.PartyService;
+import lk.healthylife.hms.util.constant.CommonReferenceCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,13 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.sql.DataSource;
 import javax.transaction.Transactional;
+import java.math.BigInteger;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,22 +41,28 @@ public class DepartmentServiceImpl extends EntityValidator implements Department
 
     private final DepartmentLocationService departmentLocationService;
     private final DepartmentFacilityService departmentFacilityService;
+    private final PartyService partyService;
 
     private final NumberGeneratorRepository numberGeneratorRepository;
 
     private final AuditorAwareImpl auditorAware;
+    private final DataSource dataSource;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     public DepartmentServiceImpl(DepartmentLocationService departmentLocationService,
                                  DepartmentFacilityService departmentFacilityService,
+                                 PartyService partyService,
                                  NumberGeneratorRepository numberGeneratorRepository,
-                                 AuditorAwareImpl auditorAware) {
+                                 AuditorAwareImpl auditorAware,
+                                 DataSource dataSource) {
         this.departmentLocationService = departmentLocationService;
         this.departmentFacilityService = departmentFacilityService;
+        this.partyService = partyService;
         this.numberGeneratorRepository = numberGeneratorRepository;
         this.auditorAware = auditorAware;
+        this.dataSource = dataSource;
     }
 
     @Override
@@ -91,6 +105,13 @@ public class DepartmentServiceImpl extends EntityValidator implements Department
         String departmentCode = null;
         validateEntity(departmentDTO);
 
+        if(!Strings.isNullOrEmpty(departmentDTO.getDepartmentHead())) {
+            PartyDTO departmentHead = partyService.getPartyByPartyCode(departmentDTO.getDepartmentHead());
+
+            if(!departmentHead.getType().equals(CommonReferenceCodes.PARTY_TYPE_DOCTOR.getValue()))
+                throw new InvalidDataException("Department Head should be a Doctor");
+        }
+
         try {
             departmentCode = numberGeneratorRepository.generateNumber("DP", "Y", "#", "#",
                     "#", "#", "#", "#");
@@ -102,24 +123,35 @@ public class DepartmentServiceImpl extends EntityValidator implements Department
         if(Strings.isNullOrEmpty(departmentCode))
             throw new OperationException("Department Code not generated");
 
-        try {
-            final Query query = entityManager.createNativeQuery("INSERT INTO T_MS_DEPARTMENT (DPMT_CODE, DPMT_NAME, DPMT_DESCRIPTION, \n" +
-                            "DPMT_HEAD, DPMT_STATUS, CREATED_DATE, CREATED_USER_CODE, DPMT_BRANCH_ID)\n" +
-                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-                    .setParameter(1, departmentCode)
-                    .setParameter(2, departmentDTO.getName())
-                    .setParameter(3, Strings.isNullOrEmpty(departmentDTO.getDescription()) ? null : departmentDTO.getDescription())
-                    .setParameter(4, Strings.isNullOrEmpty(departmentDTO.getDepartmentHead()) ? null : departmentDTO.getDepartmentHead())
-                    .setParameter(5, STATUS_ACTIVE.getShortValue())
-                    .setParameter(6, LocalDateTime.now())
-                    .setParameter(7, auditorAware.getCurrentAuditor().get())
-                    .setParameter(8, captureBranchIds().get(0));
+        try (Connection connection = dataSource.getConnection()) {
 
-            query.executeUpdate();
+            CallableStatement statement = connection
+                    .prepareCall("{CALL INSERT INTO T_MS_DEPARTMENT (DPMT_CODE, DPMT_NAME, DPMT_DESCRIPTION, \n" +
+                            "DPMT_HEAD, DPMT_STATUS, CREATED_DATE, CREATED_USER_CODE, DPMT_BRANCH_ID)\n" +
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)}");
+
+            statement.setString(1, departmentCode);
+            statement.setString(2, departmentDTO.getName());
+            statement.setString(3, Strings.isNullOrEmpty(departmentDTO.getDescription()) ? null : departmentDTO.getDescription());
+            statement.setString(4, Strings.isNullOrEmpty(departmentDTO.getDepartmentHead()) ? null : departmentDTO.getDepartmentHead());
+            statement.setShort(5, STATUS_ACTIVE.getShortValue());
+            statement.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setString(7, auditorAware.getCurrentAuditor().get());
+            statement.setLong(8, captureBranchIds().get(0));
+
+            int updateCount = statement.executeUpdate();
+
         } catch (Exception e) {
+            e.printStackTrace();
             log.error("Error while persisting Department : " + e.getMessage());
-            throw new OperationException("Error while persisting the Department");
+            throw new OperationException("Error while persisting Department");
         }
+
+        for(DepartmentLocationDTO departmentLocation : departmentDTO.getDepartmentLocations())
+            departmentLocationService.addLocationToDepartment(departmentCode, departmentLocation);
+
+        for(DepartmentFacilityDTO departmentFacility : departmentDTO.getDepartmentFacilities())
+            departmentFacilityService.addFacilityToDepartment(departmentCode, departmentFacility);
 
         return getDepartmentByCode(departmentCode);
     }
