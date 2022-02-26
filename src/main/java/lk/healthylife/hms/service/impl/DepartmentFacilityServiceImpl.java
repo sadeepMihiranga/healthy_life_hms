@@ -51,6 +51,8 @@ public class DepartmentFacilityServiceImpl extends EntityValidator implements De
 
         BigInteger insertedRowId = null;
 
+        validateEntity(departmentFacilityDTO);
+
         try (Connection connection = dataSource.getConnection()) {
 
             CallableStatement statement = connection

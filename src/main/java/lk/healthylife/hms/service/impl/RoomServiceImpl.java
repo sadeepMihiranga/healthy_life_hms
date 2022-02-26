@@ -183,7 +183,7 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
 
         final String queryString = "SELECT rm.ROOM_ID, rm.ROOM_NO, rm.ROOM_TYPE, rm.ROOM_PER_DAY_CHARGE, rm.ROOM_DESCRIPTION, \n" +
                 "rm.ROOM_BRANCH_ID, rm.ROOM_STATUS, rm.CREATED_DATE, rm.CREATED_USER_CODE, rm.LAST_MOD_DATE,\n" +
-                "rm.LAST_MOD_USER_CODE, type.CMRF_DESCRIPTION AS ROOM_TYPE_NAME, br.BRNH_NAME AS BRANCH_NAME, rm.ROOM_DEPARTMENT_CODE\n" +
+                "rm.LAST_MOD_USER_CODE, type.CMRF_DESCRIPTION AS ROOM_TYPE_NAME, br.BRNH_NAME AS BRANCH_NAME\n" +
                 "FROM T_MS_ROOM rm \n" +
                 "LEFT JOIN T_RF_COMMON_REFERENCE type ON rm.ROOM_TYPE = type.CMRF_CODE\n" +
                 "INNER JOIN T_RF_BRANCH br ON rm.ROOM_BRANCH_ID = br.BRNH_ID\n" +
@@ -230,7 +230,7 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
 
         String queryString = "SELECT r.ROOM_ID, r.ROOM_NO, r.ROOM_TYPE, r.ROOM_PER_DAY_CHARGE, r.ROOM_DESCRIPTION,\n" +
                 "r.ROOM_BRANCH_ID, r.ROOM_STATUS, r.CREATED_DATE, r.CREATED_USER_CODE, r.LAST_MOD_DATE,\n" +
-                "r.LAST_MOD_USER_CODE, type.CMRF_DESCRIPTION AS ROOM_TYPE_NAME, br.BRNH_NAME AS BRANCH_NAME, ROOM_DEPARTMENT_CODE\n" +
+                "r.LAST_MOD_USER_CODE, type.CMRF_DESCRIPTION AS ROOM_TYPE_NAME, br.BRNH_NAME AS BRANCH_NAME\n" +
                 "FROM T_MS_ROOM r\n" +
                 "LEFT JOIN T_RF_COMMON_REFERENCE type ON r.ROOM_TYPE = type.CMRF_CODE\n" +
                 "INNER JOIN T_RF_BRANCH br ON r.ROOM_BRANCH_ID = br.BRNH_ID\n" +
