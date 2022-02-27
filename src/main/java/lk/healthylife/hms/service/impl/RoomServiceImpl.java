@@ -87,7 +87,7 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
         try {
             final Query query = entityManager.createNativeQuery("INSERT INTO T_MS_ROOM (ROOM_NO, ROOM_TYPE, ROOM_PER_DAY_CHARGE,\n" +
                             "ROOM_DESCRIPTION, ROOM_BRANCH_ID, ROOM_STATUS, CREATED_DATE, CREATED_USER_CODE)\n" +
-                            "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                            "VALUES(?, ?, ?, ?, ?, ?, ?, ?)")
                     .setParameter(1, roomDTO.getRoomNo())
                     .setParameter(2, roomDTO.getRoomType())
                     .setParameter(3, roomDTO.getPerDayCharge())
