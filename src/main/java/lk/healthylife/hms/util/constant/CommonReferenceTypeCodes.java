@@ -14,7 +14,8 @@ public enum CommonReferenceTypeCodes {
     MEDICINE_BRANDS("MDBRD"),
     MEDICINE_TYPES("MEDTP"),
     PRESCRIBE_MODES("MDPMD"),
-    SURGERY_TYPES("SRGTP");
+    SURGERY_TYPES("SRGTP"),
+    MEDICAL_TEST_TYPES("MDTTP");
 
     private String value;
     private short shortValue;

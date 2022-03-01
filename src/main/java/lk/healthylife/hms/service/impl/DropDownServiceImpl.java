@@ -38,6 +38,7 @@ public class DropDownServiceImpl implements DropDownService {
     private static final String SURGERIES = "SUGRIS";
     private static final String PARTY_TYPES = "PTYPE";
     private static final String DOCTOR_SPECIALIZATION = "DCSPC";
+    private static final String MEDICAL_TESTS = "MDTTP";
 
     private final BranchService branchService;
     private final DepartmentService departmentService;
@@ -48,6 +49,7 @@ public class DropDownServiceImpl implements DropDownService {
     private final FacilityService facilityService;
     private final SymptomService symptomService;
     private final SurgeryService surgeryService;
+    private final MedicalTestService medicalTestService;
 
     private final FunctionRepository functionRepository;
     private final RoleRepository roleRepository;
@@ -61,6 +63,7 @@ public class DropDownServiceImpl implements DropDownService {
                                FacilityService facilityService,
                                SymptomService symptomService,
                                SurgeryService surgeryService,
+                               MedicalTestService medicalTestService,
                                FunctionRepository functionRepository,
                                RoleRepository roleRepository) {
         this.branchService = branchService;
@@ -72,6 +75,7 @@ public class DropDownServiceImpl implements DropDownService {
         this.facilityService = facilityService;
         this.symptomService = symptomService;
         this.surgeryService = surgeryService;
+        this.medicalTestService = medicalTestService;
         this.functionRepository = functionRepository;
         this.roleRepository = roleRepository;
     }
@@ -101,6 +105,7 @@ public class DropDownServiceImpl implements DropDownService {
         dropDownCodes.put("MEDICINE_TYPES", MEDICINE_TYPES);
         dropDownCodes.put("MEDICINE_BRANDS", MEDICINE_BRANDS);
         dropDownCodes.put("DOCTOR_SPECIALIZATION", DOCTOR_SPECIALIZATION);
+        dropDownCodes.put("MEDICAL_TESTS", MEDICAL_TESTS);
 
         return dropDownCodes;
     }
@@ -226,6 +231,17 @@ public class DropDownServiceImpl implements DropDownService {
                     surgeriesList.add(new DropDownDTO(
                             String.valueOf(surgeryDTO.getSurgeryId()),
                             surgeryDTO.getName(),
+                            null,
+                            null
+                    ));
+                });
+                break;
+            case MEDICAL_TESTS :
+                List<DropDownDTO> medicalTestList = downDTOList;
+                medicalTestService.getAllMedicalTestsDropdown().forEach(medicalTestDTO -> {
+                    medicalTestList.add(new DropDownDTO(
+                            String.valueOf(medicalTestDTO.getMedicalTestId()),
+                            medicalTestDTO.getName(),
                             null,
                             null
                     ));
