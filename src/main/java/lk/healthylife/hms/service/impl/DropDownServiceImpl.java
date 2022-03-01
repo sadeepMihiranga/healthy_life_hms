@@ -37,6 +37,7 @@ public class DropDownServiceImpl implements DropDownService {
     private static final String MEDICINE_BRANDS = "MDBRD";
     private static final String SURGERIES = "SUGRIS";
     private static final String PARTY_TYPES = "PTYPE";
+    private static final String DOCTOR_SPECIALIZATION = "DCSPC";
 
     private final BranchService branchService;
     private final DepartmentService departmentService;
@@ -97,6 +98,9 @@ public class DropDownServiceImpl implements DropDownService {
         dropDownCodes.put("SURGERIES", SURGERIES);
         dropDownCodes.put("SURGERIES", SURGERIES);
         dropDownCodes.put("PARTY_TYPES", PARTY_TYPES);
+        dropDownCodes.put("MEDICINE_TYPES", MEDICINE_TYPES);
+        dropDownCodes.put("MEDICINE_BRANDS", MEDICINE_BRANDS);
+        dropDownCodes.put("DOCTOR_SPECIALIZATION", DOCTOR_SPECIALIZATION);
 
         return dropDownCodes;
     }
@@ -241,6 +245,15 @@ public class DropDownServiceImpl implements DropDownService {
                 break;
             case PARTY_TYPES :
                 downDTOList = populateFromCommonReference(PARTY_TYPES);
+                break;
+            case MEDICINE_TYPES :
+                downDTOList = populateFromCommonReference(MEDICINE_TYPES);
+                break;
+            case MEDICINE_BRANDS :
+                downDTOList = populateFromCommonReference(MEDICINE_BRANDS);
+                break;
+            case DOCTOR_SPECIALIZATION :
+                downDTOList = populateFromCommonReference(DOCTOR_SPECIALIZATION);
                 break;
             default:
                 throw new InvalidDataException("Requested Dropdown Code is invalid");
