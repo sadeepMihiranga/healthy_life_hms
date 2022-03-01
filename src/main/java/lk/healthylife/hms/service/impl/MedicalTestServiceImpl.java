@@ -16,6 +16,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -159,6 +160,7 @@ public class MedicalTestServiceImpl extends EntityValidator implements MedicalTe
         return medicalTestDTO;
     }
 
+    @Transactional
     @Override
     public MedicalTestDTO updateMedicalTest(Long medicalTestId, MedicalTestDTO medicalTestDTO) {
 
@@ -185,6 +187,7 @@ public class MedicalTestServiceImpl extends EntityValidator implements MedicalTe
         return getMedicalTestById(medicalTestId);
     }
 
+    @Transactional
     @Override
     public Boolean removeMedicalTest(Long medicalTestId) {
 
@@ -212,10 +215,9 @@ public class MedicalTestServiceImpl extends EntityValidator implements MedicalTe
 
         final String countQueryString = "SELECT COUNT(MDTS_ID)" +
                 "FROM T_MS_MEDICAL_TEST\n" +
-                "WHERE mt.MDTS_STATUS = :status AND MDTS_BRANCH_ID IN (:branchIdList)\n" +
+                "WHERE MDTS_STATUS = :status AND MDTS_BRANCH_ID IN (:branchIdList)\n" +
                 "AND (:type IS NULL OR (:type IS NOT NULL) AND MDTS_TYPE = :type)\n" +
-                "AND (upper(MDTS_NAME) LIKE ('%'||upper(:name)||'%'))\n" +
-                "ORDER BY CREATED_DATE OFFSET :page ROWS FETCH NEXT :size ROWS ONLY";
+                "AND (upper(MDTS_NAME) LIKE ('%'||upper(:name)||'%'))";
 
         Query query = entityManager.createNativeQuery(countQueryString);
 

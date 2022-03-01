@@ -39,13 +39,13 @@ public class MedicalTestController {
         return SuccessResponseHandler.generateResponse(medicalTestService.medicalTestPaginatedSearch(name, type, page, size));
     }
 
-    @PutMapping("/{facilityId}")
+    @PutMapping("/{medicalTestId}")
     public ResponseEntity<SuccessResponse> updateMedicalTest(@PathVariable("medicalTestId") Long medicalTestId,
                                                           @RequestBody MedicalTestDTO medicalTestDTO) throws IOException {
         return SuccessResponseHandler.generateResponse(medicalTestService.updateMedicalTest(medicalTestId, medicalTestDTO));
     }
 
-    @DeleteMapping("/{facilityId}")
+    @DeleteMapping("/{medicalTestId}")
     public ResponseEntity<SuccessResponse> removeMedicalTest(@PathVariable("medicalTestId") Long medicalTestId) {
         return SuccessResponseHandler.generateResponse(medicalTestService.removeMedicalTest(medicalTestId));
     }
