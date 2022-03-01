@@ -169,8 +169,7 @@ public class PatientSurgeryServiceImpl extends EntityValidator implements Patien
         PaginatedEntity paginatedPatientSurgeryList = null;
         List<PatientSurgeryDTO> patientSurgeryList = null;
 
-        validatePaginateIndexes(page, size);
-        page = page == 1 ? 0 : page;
+        page = validatePaginateIndexes(page, size);
 
         doctorCode = doctorCode.isEmpty() ? null : doctorCode;
 
@@ -230,7 +229,7 @@ public class PatientSurgeryServiceImpl extends EntityValidator implements Patien
         }
 
         paginatedPatientSurgeryList
-                .setTotalNoOfPages(selectedRecordCount == 0 ? 0 : selectedRecordCount < size ? 1 : selectedRecordCount / size);
+                .setTotalNoOfPages(getTotalNoOfPages(selectedRecordCount, size));
         paginatedPatientSurgeryList.setTotalNoOfRecords(Long.valueOf(selectedRecordCount));
         paginatedPatientSurgeryList.setEntities(patientSurgeryList);
 

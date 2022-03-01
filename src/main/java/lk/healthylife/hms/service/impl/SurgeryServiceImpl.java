@@ -163,8 +163,7 @@ public class SurgeryServiceImpl  extends EntityValidator implements SurgeryServi
         PaginatedEntity paginatedSurgeryList = null;
         List<SurgeryDTO> surgeryList = null;
 
-        validatePaginateIndexes(page, size);
-        page = page == 1 ? 0 : page;
+        page = validatePaginateIndexes(page, size);
 
         final String countQueryString = "SELECT COUNT(SRGY_ID)\n" +
                 "FROM T_MS_SURGERY \n" +
@@ -214,7 +213,7 @@ public class SurgeryServiceImpl  extends EntityValidator implements SurgeryServi
         }
 
         paginatedSurgeryList
-                .setTotalNoOfPages(selectedRecordCount == 0 ? 0 : selectedRecordCount < size ? 1 : selectedRecordCount / size);
+                .setTotalNoOfPages(getTotalNoOfPages(selectedRecordCount, size));
         paginatedSurgeryList.setTotalNoOfRecords(Long.valueOf(selectedRecordCount));
         paginatedSurgeryList.setEntities(surgeryList);
 

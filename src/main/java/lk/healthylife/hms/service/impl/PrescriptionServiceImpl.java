@@ -138,8 +138,7 @@ public class PrescriptionServiceImpl extends EntityValidator implements Prescrip
         PaginatedEntity paginatedPrescriptionList = null;
         List<PrescriptionDTO> prescriptionList = null;
 
-        validatePaginateIndexes(page, size);
-        page = page == 1 ? 0 : page;
+        page = validatePaginateIndexes(page, size);
 
         final String countQueryString = "SELECT COUNT(p.PREC_ID)\n" +
                 "FROM T_TR_PRESCRIPTION p\n" +
@@ -199,7 +198,7 @@ public class PrescriptionServiceImpl extends EntityValidator implements Prescrip
         }
 
         paginatedPrescriptionList
-                .setTotalNoOfPages(selectedRecordCount == 0 ? 0 : selectedRecordCount < size ? 1 : selectedRecordCount / size);
+                .setTotalNoOfPages(getTotalNoOfPages(selectedRecordCount, size));
         paginatedPrescriptionList.setTotalNoOfRecords(Long.valueOf(selectedRecordCount));
         paginatedPrescriptionList.setEntities(prescriptionList);
 

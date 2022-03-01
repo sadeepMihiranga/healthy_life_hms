@@ -206,8 +206,7 @@ public class MedicalTestServiceImpl extends EntityValidator implements MedicalTe
         PaginatedEntity paginatedMediccalTestList = null;
         List<MedicalTestDTO> medicalTestList = null;
 
-        validatePaginateIndexes(page, size);
-        page = page == 1 ? 0 : page;
+        page = validatePaginateIndexes(page, size);
 
         type = type.isEmpty() ? null : type;
 
@@ -263,7 +262,7 @@ public class MedicalTestServiceImpl extends EntityValidator implements MedicalTe
         }
 
         paginatedMediccalTestList
-                .setTotalNoOfPages(selectedRecordCount == 0 ? 0 : selectedRecordCount < size ? 1 : selectedRecordCount / size);
+                .setTotalNoOfPages(getTotalNoOfPages(selectedRecordCount, size));
         paginatedMediccalTestList.setTotalNoOfRecords(Long.valueOf(selectedRecordCount));
         paginatedMediccalTestList.setEntities(medicalTestList);
 

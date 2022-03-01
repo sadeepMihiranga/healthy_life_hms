@@ -157,8 +157,7 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
         PaginatedEntity paginatedRoomList = null;
         List<RoomDTO> roomList = null;
 
-        validatePaginateIndexes(page, size);
-        page = page == 1 ? 0 : page;
+        page = validatePaginateIndexes(page, size);
 
         roomNo = roomNo.isEmpty() ? null : roomNo;
         roomType = roomType.isEmpty() ? null : roomType;
@@ -217,7 +216,7 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
         }
 
         paginatedRoomList
-                .setTotalNoOfPages(selectedRecordCount == 0 ? 0 : selectedRecordCount < size ? 1 : selectedRecordCount / size);
+                .setTotalNoOfPages(getTotalNoOfPages(selectedRecordCount, size));
         paginatedRoomList.setTotalNoOfRecords(Long.valueOf(selectedRecordCount));
         paginatedRoomList.setEntities(roomList);
 

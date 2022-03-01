@@ -200,8 +200,7 @@ public class DepartmentServiceImpl extends EntityValidator implements Department
         PaginatedEntity paginatedDepartmentList = null;
         List<DepartmentDTO> departmentList = null;
 
-        validatePaginateIndexes(page, size);
-        page = page == 1 ? 0 : page;
+        page = validatePaginateIndexes(page, size);
 
         departmentCode = departmentCode.isEmpty() ? null : departmentCode;
 
@@ -256,7 +255,7 @@ public class DepartmentServiceImpl extends EntityValidator implements Department
         }
 
         paginatedDepartmentList
-                .setTotalNoOfPages(selectedRecordCount == 0 ? 0 : selectedRecordCount < size ? 1 : selectedRecordCount / size);
+                .setTotalNoOfPages(getTotalNoOfPages(selectedRecordCount, size));
         paginatedDepartmentList.setTotalNoOfRecords(Long.valueOf(selectedRecordCount));
         paginatedDepartmentList.setEntities(departmentList);
 

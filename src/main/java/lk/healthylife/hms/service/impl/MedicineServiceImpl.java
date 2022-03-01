@@ -188,8 +188,7 @@ public class MedicineServiceImpl extends EntityValidator implements MedicineServ
         PaginatedEntity paginatedMedicineList = null;
         List<MedicineDTO> medicineList = null;
 
-        validatePaginateIndexes(page, size);
-        page = page == 1 ? 0 : page;
+        page = validatePaginateIndexes(page, size);
 
         type = type.isEmpty() ? null : type;
         brand = brand.isEmpty() ? null : brand;
@@ -252,7 +251,7 @@ public class MedicineServiceImpl extends EntityValidator implements MedicineServ
         }
 
         paginatedMedicineList
-                .setTotalNoOfPages(selectedRecordCount == 0 ? 0 : selectedRecordCount < size ? 1 : selectedRecordCount / size);
+                .setTotalNoOfPages(getTotalNoOfPages(selectedRecordCount, size));
         paginatedMedicineList.setTotalNoOfRecords(Long.valueOf(selectedRecordCount));
         paginatedMedicineList.setEntities(medicineList);
 

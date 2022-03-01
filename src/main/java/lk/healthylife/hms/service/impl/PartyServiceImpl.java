@@ -261,8 +261,7 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
         PaginatedEntity paginatedPartyList = null;
         List<PartyDTO> partyList = null;
 
-        validatePaginateIndexes(page, size);
-        page = page == 1 ? 0 : page;
+        page = validatePaginateIndexes(page, size);
 
         partyType = partyType.isEmpty() ? null : partyType;
 
@@ -342,7 +341,7 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
             partyList.add(partyDTO);
         }
 
-        paginatedPartyList.setTotalNoOfPages(selectedRecordCount < size ? 1 : selectedRecordCount / size);
+        paginatedPartyList.setTotalNoOfPages(getTotalNoOfPages(selectedRecordCount, size));
         paginatedPartyList.setTotalNoOfRecords(Long.valueOf(selectedRecordCount));
         paginatedPartyList.setEntities(partyList);
 

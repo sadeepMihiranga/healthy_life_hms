@@ -179,8 +179,7 @@ public class FacilityServiceImpl extends EntityValidator implements FacilityServ
         PaginatedEntity paginatedFacilityList = null;
         List<FacilityDTO> facilityList = null;
 
-        validatePaginateIndexes(page, size);
-        page = page == 1 ? 0 : page;
+        page = validatePaginateIndexes(page, size);
 
         final String countQueryString = "SELECT COUNT(FCLT_ID)\n" +
                 "FROM T_MS_FACILITY \n" +
@@ -228,7 +227,7 @@ public class FacilityServiceImpl extends EntityValidator implements FacilityServ
         }
 
         paginatedFacilityList
-                .setTotalNoOfPages(selectedRecordCount == 0 ? 0 : selectedRecordCount < size ? 1 : selectedRecordCount / size);
+                .setTotalNoOfPages(getTotalNoOfPages(selectedRecordCount, size));
         paginatedFacilityList.setTotalNoOfRecords(Long.valueOf(selectedRecordCount));
         paginatedFacilityList.setEntities(facilityList);
 

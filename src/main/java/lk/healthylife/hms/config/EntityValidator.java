@@ -68,13 +68,19 @@ public class EntityValidator {
         return branches;
     }
 
-    protected final void validatePaginateIndexes(Integer page, Integer size) {
+    protected final Integer validatePaginateIndexes(Integer page, Integer size) {
 
         if (page < 1)
             throw new InvalidDataException("Page should be a value greater than 0");
 
         if (size < 1)
             throw new InvalidDataException("Limit should be a value greater than 0");
+
+        return page == 1 ? 0 : page - 1;
+    }
+
+    protected Integer getTotalNoOfPages(Integer selectedRecordCount, Integer size) {
+        return selectedRecordCount == 0 ? 0 : selectedRecordCount < size ? 1 : (int)Math.ceil((double)selectedRecordCount / size);
     }
 
     protected final String getExceptionMessageChain(Throwable throwable) {
