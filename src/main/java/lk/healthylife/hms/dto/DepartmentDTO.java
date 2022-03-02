@@ -26,6 +26,7 @@ public class DepartmentDTO implements Paginated {
     private String lastUpdatedUserCode;
     private List<DepartmentLocationDTO> departmentLocations;
     private List<DepartmentFacilityDTO> departmentFacilities;
+    private List<FacilityDTO> facilities;
 
     public DepartmentDTO(String departmentCode) {
         this.departmentCode = departmentCode;

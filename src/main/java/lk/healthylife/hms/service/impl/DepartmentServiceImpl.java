@@ -142,7 +142,6 @@ public class DepartmentServiceImpl extends EntityValidator implements Department
             int updateCount = statement.executeUpdate();
 
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("Error while persisting Department : " + e.getMessage());
             throw new OperationException("Error while persisting Department");
         }
@@ -150,8 +149,12 @@ public class DepartmentServiceImpl extends EntityValidator implements Department
         for(DepartmentLocationDTO departmentLocation : departmentDTO.getDepartmentLocations())
             departmentLocationService.addLocationToDepartment(departmentCode, departmentLocation);
 
-        for(DepartmentFacilityDTO departmentFacility : departmentDTO.getDepartmentFacilities())
-            departmentFacilityService.addFacilityToDepartment(departmentCode, departmentFacility);
+        for(FacilityDTO facility : departmentDTO.getFacilities()) {
+            DepartmentFacilityDTO departmentFacilityDTO = new DepartmentFacilityDTO();
+            departmentFacilityDTO.setFacility(facility);
+
+            departmentFacilityService.addFacilityToDepartment(departmentCode, departmentFacilityDTO);
+        }
 
         return getDepartmentByCode(departmentCode);
     }
