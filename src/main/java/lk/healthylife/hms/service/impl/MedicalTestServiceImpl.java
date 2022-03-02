@@ -3,7 +3,6 @@ package lk.healthylife.hms.service.impl;
 import lk.healthylife.hms.config.AuditorAwareImpl;
 import lk.healthylife.hms.config.EntityValidator;
 import lk.healthylife.hms.dto.MedicalTestDTO;
-import lk.healthylife.hms.dto.MedicineDTO;
 import lk.healthylife.hms.dto.PaginatedEntity;
 import lk.healthylife.hms.exception.NoRequiredInfoException;
 import lk.healthylife.hms.exception.OperationException;
@@ -28,7 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static lk.healthylife.hms.util.constant.CommonReferenceTypeCodes.*;
+import static lk.healthylife.hms.util.constant.CommonReferenceTypeCodes.MEDICAL_TEST_TYPES;
 import static lk.healthylife.hms.util.constant.Constants.STATUS_ACTIVE;
 import static lk.healthylife.hms.util.constant.Constants.STATUS_INACTIVE;
 

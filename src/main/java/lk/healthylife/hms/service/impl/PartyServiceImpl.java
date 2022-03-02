@@ -176,7 +176,7 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
         List<Map<String,Object>> result = extractResultSet(query);
 
         if (result.size() == 0)
-            return null;
+            throw new InvalidDataException("No Party found for the Code : " + partyCode);
 
         for (Map<String,Object> party : result) {
 
