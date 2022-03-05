@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fontFamilies>
+    <fontFamily name="Abhaya Libre">
+        <!-- Normal Abhaya Libre Font -->
+        <normal><![CDATA[fonts/AbhayaLibre-Regular.ttf]]></normal>
+        <!-- Bold Abhaya Libre Font -->
+        <bold><![CDATA[fonts/AbhayaLibre-Bold.ttf]]></bold>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="Roboto">
+        <!-- Normal Roboto Font -->
+        <normal><![CDATA[fonts/Roboto-Regular.ttf]]></normal>
+        <!-- Bold Roboto Font -->
+        <bold><![CDATA[fonts/Roboto-Bold.ttf]]></bold>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="Yaldevi Colombo">
+        <!-- Normal Yaldevi Colombo Font -->
+        <normal><![CDATA[fonts/YaldeviColombo-Regular.ttf]]></normal>
+        <!-- Bold Yaldevi Colombo Font -->
+        <bold><![CDATA[fonts/YaldeviColombo-Bold.ttf]]></bold>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="DinaminaUniWeb">
+        <!-- Normal DinaminaUniWeb Font -->
+        <normal><![CDATA[fonts/DinaminaUniWeb.ttf]]></normal>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="Mukta Malar">
+        <!-- Normal Mukta Malar Font -->
+        <normal><![CDATA[fonts/MuktaMalar-Regular.ttf]]></normal>
+        <!-- Bold Mukta Malar Font -->
+        <bold><![CDATA[fonts/MuktaMalar-Bold.ttf]]></bold>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="Courier New">
+        <!-- Normal Mukta Malar Font -->
+        <normal><![CDATA[fonts/cour.ttf]]></normal>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="Courier Prime">
+        <!-- Normal Courier Prime Font -->
+        <normal><![CDATA[fonts/CourierPrime-Regular.ttf]]></normal>
+        <bold><![CDATA[fonts/CourierPrime-Bold.ttf]]></bold>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="Nunito">
+        <!-- Nunito Font -->
+        <normal><![CDATA[fonts/Nunito-Regular.ttf]]></normal>
+        <bold><![CDATA[fonts/Nunito-Bold.ttf]]></bold>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="LKLUG">
+        <!-- Nunito Font -->
+        <normal><![CDATA[fonts/lklug.ttf]]></normal>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="Lucida Console">
+        <!-- Nunito Font -->
+        <normal><![CDATA[fonts/L_10646.TTF]]></normal>
+        <bold><![CDATA[fonts/LucidaConsoleRegular.ttf]]></bold>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="BhashitaComplex">
+        <!-- BhashitaComplex Font -->
+        <normal><![CDATA[fonts/LBhashitaComplex.ttf]]></normal>
+        <bold><![CDATA[fonts/LBhashitaComplexBold.ttf]]></bold>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="BhashithaComplexSans">
+        <!-- BhashitaComplex Font -->
+        <normal><![CDATA[fonts/BhashitaComplexSans.ttf]]></normal>
+        <bold><![CDATA[fonts/BhashitaComplexSansBold.ttf]]></bold>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+    <fontFamily name="SriTam">
+        <!-- SriTam Font -->
+        <normal><![CDATA[fonts/SriTamR.ttf]]></normal>
+        <bold><![CDATA[fonts/SriTamB.ttf]]></bold>
+        <pdfEncoding>Identity-H</pdfEncoding>
+        <pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+    </fontFamily>
+</fontFamilies>
+
