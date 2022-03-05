@@ -17,6 +17,7 @@ public class PatientConditionDTO {
     @NotNull(message = "Admission Id is mandatory")
     private Long admissionId;
     private Long patientSurgeryId;
+    @NotNull(message = "Symptom Id is mandatory")
     private Long symptomId;
     @NotBlank(message = "Condition When is mandatory")
     private String conditionWhen;

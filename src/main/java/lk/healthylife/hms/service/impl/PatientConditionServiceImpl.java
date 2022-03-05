@@ -48,15 +48,25 @@ public class PatientConditionServiceImpl extends EntityValidator implements Pati
     public PatientConditionDTO addPatientCondition(PatientConditionDTO patientConditionDTO) {
 
         BigInteger insertedRowId = null;
+        Integer outParamIndex = 10;
 
         validateEntity(patientConditionDTO);
 
         try (Connection connection = dataSource.getConnection()) {
 
-            CallableStatement statement = connection
-                    .prepareCall("{CALL INSERT INTO T_TR_PATIENT_CONDITION (PTCD_ADMISSION_ID, PTCD_CONDITION_WHEN,\n" +
-                            "PTCD_SYMPTOM_ID, PTCD_DESCRIPTION, PTCD_STATUS, CREATED_DATE, CREATED_USER_CODE, PTCD_BRANCH_ID)\n" +
-                            "VALUES(?, ?, ?, ?, ?, ?, ?, ?) RETURNING PTCD_ID INTO ?}");
+            String query = "{CALL INSERT INTO T_TR_PATIENT_CONDITION (PTCD_ADMISSION_ID, PTCD_CONDITION_WHEN,\n" +
+                    "PTCD_SYMPTOM_ID, PTCD_DESCRIPTION, PTCD_STATUS, CREATED_DATE, CREATED_USER_CODE, PTCD_BRANCH_ID, PTCD_PATIENT_SURGERY_ID)\n" +
+                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING PTCD_ID INTO ?}";
+
+            if(patientConditionDTO.getPatientSurgeryId() == null) {
+                query = "{CALL INSERT INTO T_TR_PATIENT_CONDITION (PTCD_ADMISSION_ID, PTCD_CONDITION_WHEN,\n" +
+                        "PTCD_SYMPTOM_ID, PTCD_DESCRIPTION, PTCD_STATUS, CREATED_DATE, CREATED_USER_CODE, PTCD_BRANCH_ID)\n" +
+                        "VALUES(?, ?, ?, ?, ?, ?, ?, ?) RETURNING PTCD_ID INTO ?}";
+
+                outParamIndex = 9;
+            }
+
+            CallableStatement statement = connection.prepareCall(query);
 
             statement.setLong(1, patientConditionDTO.getAdmissionId());
             statement.setString(2, patientConditionDTO.getConditionWhen());
@@ -66,13 +76,15 @@ public class PatientConditionServiceImpl extends EntityValidator implements Pati
             statement.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
             statement.setString(7, auditorAware.getCurrentAuditor().get());
             statement.setLong(8, captureBranchIds().get(0));
+            if(patientConditionDTO.getPatientSurgeryId() != null)
+                statement.setLong(9, patientConditionDTO.getPatientSurgeryId());
 
-            statement.registerOutParameter( 9, Types.BIGINT);
+            statement.registerOutParameter( outParamIndex, Types.BIGINT);
 
             int updateCount = statement.executeUpdate();
 
             if (updateCount > 0)
-                insertedRowId = BigInteger.valueOf(statement.getLong(9));
+                insertedRowId = BigInteger.valueOf(statement.getLong(outParamIndex));
 
         } catch (Exception e) {
             e.printStackTrace();
