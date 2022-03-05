@@ -14,7 +14,9 @@ public enum CommonReferenceCodes {
     PAYMENT_BANK_DEPOSIT("PTBDEP"),
     PAYMENT_ONLINE_TRANSFER("PTONLN"),
 
-    MODE_3_TIMES("PM3TPD");
+    MODE_3_TIMES("PM3TPD"),
+
+    PATIENT_CONDITION_ADMITTING("CDWADM");
 
     private String value;
     private short shortValue;

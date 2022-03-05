@@ -7,7 +7,9 @@ public interface PatientAdmissionService {
 
     PatientAdmissionDTO admitPatient(PatientAdmissionDTO patientAdmissionDTO);
 
-    PatientAdmissionDTO dischargePatient(Long admissionId);
+    Boolean approveAdmission(Long admissionId);
+
+    Boolean dischargePatient(Long admissionId);
 
     PatientAdmissionDTO getAdmissionById(Long admissionId);
 

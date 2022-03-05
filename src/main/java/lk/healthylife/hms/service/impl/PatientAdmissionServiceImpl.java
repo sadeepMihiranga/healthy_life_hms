@@ -4,6 +4,7 @@ import lk.healthylife.hms.config.AuditorAwareImpl;
 import lk.healthylife.hms.config.EntityValidator;
 import lk.healthylife.hms.dto.PaginatedEntity;
 import lk.healthylife.hms.dto.PatientAdmissionDTO;
+import lk.healthylife.hms.dto.PatientConditionDTO;
 import lk.healthylife.hms.exception.NoRequiredInfoException;
 import lk.healthylife.hms.exception.OperationException;
 import lk.healthylife.hms.service.PatientAdmissionService;
@@ -16,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -26,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static lk.healthylife.hms.util.constant.CommonReferenceCodes.PATIENT_CONDITION_ADMITTING;
 import static lk.healthylife.hms.util.constant.Constants.STATUS_ACTIVE;
 import static lk.healthylife.hms.util.constant.Constants.STATUS_INACTIVE;
 
@@ -52,6 +55,7 @@ public class PatientAdmissionServiceImpl extends EntityValidator implements Pati
         this.treatmentAdviceService = treatmentAdviceService;
     }
 
+    @Transactional
     @Override
     public PatientAdmissionDTO admitPatient(PatientAdmissionDTO patientAdmissionDTO) {
 
@@ -64,7 +68,7 @@ public class PatientAdmissionServiceImpl extends EntityValidator implements Pati
             CallableStatement statement = connection
                     .prepareCall("{CALL INSERT INTO T_TR_PATIENT_ADMISSION (PTAD_PATIENT_CODE, PTAD_ROOM_ID, PTAD_ADMITTED_DATE,\n" +
                             "PTAD_REMARKS, PTAD_STATUS, CREATED_DATE, CREATED_USER_CODE, PTAD_BRANCH_ID)\n" +
-                            "VALUES(?, ?, ?, ?, ?, ?, ?) RETURNING PTAD_ID INTO ?}");
+                            "VALUES(?, ?, ?, ?, ?, ?, ?, ?) RETURNING PTAD_ID INTO ?}");
 
             statement.setString(1, patientAdmissionDTO.getPatientCode());
             statement.setLong(2, patientAdmissionDTO.getRoomId());
@@ -87,11 +91,37 @@ public class PatientAdmissionServiceImpl extends EntityValidator implements Pati
             throw new OperationException("Error while persisting Admission");
         }
 
+        for(PatientConditionDTO condition : patientAdmissionDTO.getConditions()) {
+            condition.setAdmissionId(insertedRowId.longValue());
+            condition.setConditionWhen(PATIENT_CONDITION_ADMITTING.getValue());
+            patientConditionService.addPatientCondition(condition);
+        }
+
         return getAdmissionById(insertedRowId.longValue());
     }
 
+    @Transactional
     @Override
-    public PatientAdmissionDTO dischargePatient(Long admissionId) {
+    public Boolean approveAdmission(Long admissionId) {
+        validateAdmissionId(admissionId);
+
+        final Query query = entityManager
+                .createNativeQuery("UPDATE T_TR_PATIENT_ADMISSION SET PTAD_ADMISSION_APPROVED_DOCTOR = :approvedDoctor,\n" +
+                        "LAST_MOD_DATE = :lastModDate, LAST_MOD_USER_CODE = :lastModUser \n" +
+                        "WHERE PTAD_ID = :admissionId AND PTAD_STATUS = :status AND PTAD_BRANCH_ID IN (:branchIdList)")
+                .setParameter("approvedDoctor", auditorAware.getCurrentAuditor().get())
+                .setParameter("lastModDate", LocalDateTime.now())
+                .setParameter("lastModUser", auditorAware.getCurrentAuditor().get())
+                .setParameter("status", STATUS_ACTIVE.getShortValue())
+                .setParameter("admissionId", admissionId)
+                .setParameter("branchIdList", captureBranchIds());
+
+        return query.executeUpdate() > 0;
+    }
+
+    @Transactional
+    @Override
+    public Boolean dischargePatient(Long admissionId) {
 
         validateAdmissionId(admissionId);
 
@@ -109,7 +139,7 @@ public class PatientAdmissionServiceImpl extends EntityValidator implements Pati
 
         query.executeUpdate();
 
-        return getAdmissionById(admissionId);
+        return query.executeUpdate() > 0;
     }
 
     @Override
@@ -121,7 +151,7 @@ public class PatientAdmissionServiceImpl extends EntityValidator implements Pati
 
         final String queryString = "SELECT pa.PTAD_ID, pa.PTAD_PATIENT_CODE, pa.PTAD_ROOM_ID, pa.PTAD_ADMISSION_APPROVED_DOCTOR,\n" +
                 "pa.PTAD_ADMITTED_DATE, pa.PTAD_DISCHARGED_DATE, pa.PTAD_DISCHARGE_APPROVED_DOCTOR,\n" +
-                "pa.PTAD_ADMITTED_DATE, pa.PTAD_REMARKS, pa.PTAD_STATUS, pa.CREATED_DATE, pa.CREATED_USER_CODE,\n" +
+                "pa.PTAD_REMARKS, pa.PTAD_STATUS, pa.CREATED_DATE, pa.CREATED_USER_CODE,\n" +
                 "pa.LAST_MOD_DATE, pa.LAST_MOD_USER_CODE, pa.PTAD_BRANCH_ID, br.BRNH_NAME AS BRANCH_NAME\n" +
                 "FROM T_TR_PATIENT_ADMISSION pa\n" +
                 "INNER JOIN T_RF_BRANCH br ON pa.PTAD_BRANCH_ID = br.BRNH_ID\n" +
@@ -180,7 +210,7 @@ public class PatientAdmissionServiceImpl extends EntityValidator implements Pati
 
         final String queryString = "SELECT pa.PTAD_ID, pa.PTAD_PATIENT_CODE, pa.PTAD_ROOM_ID, pa.PTAD_ADMISSION_APPROVED_DOCTOR,\n" +
                 "pa.PTAD_ADMITTED_DATE, pa.PTAD_DISCHARGED_DATE, pa.PTAD_DISCHARGE_APPROVED_DOCTOR,\n" +
-                "pa.PTAD_ADMITTED_DATE, pa.PTAD_REMARKS, pa.PTAD_STATUS, pa.CREATED_DATE, pa.CREATED_USER_CODE,\n" +
+                "pa.PTAD_REMARKS, pa.PTAD_STATUS, pa.CREATED_DATE, pa.CREATED_USER_CODE,\n" +
                 "pa.LAST_MOD_DATE, pa.LAST_MOD_USER_CODE, pa.PTAD_BRANCH_ID, br.BRNH_NAME AS BRANCH_NAME,\n" +
                 "patient.PRTY_NAME AS PATIENT_NAME, room.ROOM_NO \n" +
                 "FROM T_TR_PATIENT_ADMISSION pa\n" +
@@ -223,6 +253,7 @@ public class PatientAdmissionServiceImpl extends EntityValidator implements Pati
         return paginatedAdmissionList;
     }
 
+    @Transactional
     @Override
     public Boolean removeAdmission(Long admissionId) {
 

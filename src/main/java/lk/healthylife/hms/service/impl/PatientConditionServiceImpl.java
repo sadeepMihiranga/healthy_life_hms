@@ -13,6 +13,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.sql.DataSource;
+import javax.transaction.Transactional;
 import java.math.BigInteger;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -42,6 +43,7 @@ public class PatientConditionServiceImpl extends EntityValidator implements Pati
         this.dataSource = dataSource;
     }
 
+    @Transactional
     @Override
     public PatientConditionDTO addPatientCondition(PatientConditionDTO patientConditionDTO) {
 
@@ -52,28 +54,28 @@ public class PatientConditionServiceImpl extends EntityValidator implements Pati
         try (Connection connection = dataSource.getConnection()) {
 
             CallableStatement statement = connection
-                    .prepareCall("{CALL INSERT INTO T_TR_PATIENT_CONDITION (PTCD_ADMISSION_ID, PTCD_PATIENT_SURGERY_ID, PTCD_CONDITION_WHEN,\n" +
-                            "PTCD_SYMPTOM_ID, PTCD_DESCRIPTION, PTCD_STATUS, CREATED_DATE, CREATED_USER_CODE)\n" +
+                    .prepareCall("{CALL INSERT INTO T_TR_PATIENT_CONDITION (PTCD_ADMISSION_ID, PTCD_CONDITION_WHEN,\n" +
+                            "PTCD_SYMPTOM_ID, PTCD_DESCRIPTION, PTCD_STATUS, CREATED_DATE, CREATED_USER_CODE, PTCD_BRANCH_ID)\n" +
                             "VALUES(?, ?, ?, ?, ?, ?, ?, ?) RETURNING PTCD_ID INTO ?}");
 
             statement.setLong(1, patientConditionDTO.getAdmissionId());
-            statement.setLong(2, patientConditionDTO.getPatientSurgeryId());
-            statement.setString(3, patientConditionDTO.getConditionWhen());
-            statement.setLong(4, patientConditionDTO.getSymptomId());
-            statement.setString(5, auditorAware.getCurrentAuditor().get());
-            statement.setShort(6, STATUS_ACTIVE.getShortValue());
-            statement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
-            statement.setString(8, auditorAware.getCurrentAuditor().get());
-            statement.setLong(9, captureBranchIds().get(0));
+            statement.setString(2, patientConditionDTO.getConditionWhen());
+            statement.setLong(3, patientConditionDTO.getSymptomId());
+            statement.setString(4, patientConditionDTO.getDescription());
+            statement.setShort(5, STATUS_ACTIVE.getShortValue());
+            statement.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setString(7, auditorAware.getCurrentAuditor().get());
+            statement.setLong(8, captureBranchIds().get(0));
 
-            statement.registerOutParameter( 10, Types.BIGINT);
+            statement.registerOutParameter( 9, Types.BIGINT);
 
             int updateCount = statement.executeUpdate();
 
             if (updateCount > 0)
-                insertedRowId = BigInteger.valueOf(statement.getLong(10));
+                insertedRowId = BigInteger.valueOf(statement.getLong(9));
 
         } catch (Exception e) {
+            e.printStackTrace();
             log.error("Error while persisting Patient Condition : " + e.getMessage());
             throw new OperationException("Error while persisting Patient Condition");
         }
@@ -90,9 +92,9 @@ public class PatientConditionServiceImpl extends EntityValidator implements Pati
 
         final String queryString = "SELECT pc.PTCD_ID, pc.PTCD_ADMISSION_ID, pc.PTCD_PATIENT_SURGERY_ID, pc.PTCD_CONDITION_WHEN,\n" +
                 "pc.PTCD_SYMPTOM_ID, pc.PTCD_DESCRIPTION, pc.PTCD_STATUS, pc.CREATED_DATE, pc.CREATED_USER_CODE,\n" +
-                "pc.CREATED_DATE, pc.CREATED_USER_CODE, br.BRNH_NAME AS BRANCH_NAME\n" +
+                "pc.LAST_MOD_DATE, pc.LAST_MOD_USER_CODE, br.BRNH_NAME AS BRANCH_NAME\n" +
                 "FROM T_TR_PATIENT_CONDITION pc\n" +
-                "INNER JOIN T_RF_BRANCH br ON pc.PTAD_BRANCH_ID = br.BRNH_ID\n" +
+                "INNER JOIN T_RF_BRANCH br ON pc.PTCD_BRANCH_ID = br.BRNH_ID\n" +
                 "WHERE pc.PTCD_ID = :patientConditionId AND pc.PTCD_STATUS = :status AND pc.PTCD_BRANCH_ID IN (:branchIdList)";
 
         Query query = entityManager.createNativeQuery(queryString);
@@ -123,9 +125,9 @@ public class PatientConditionServiceImpl extends EntityValidator implements Pati
 
         final String queryString = "SELECT pc.PTCD_ID, pc.PTCD_ADMISSION_ID, pc.PTCD_PATIENT_SURGERY_ID, pc.PTCD_CONDITION_WHEN,\n" +
                 "pc.PTCD_SYMPTOM_ID, pc.PTCD_DESCRIPTION, pc.PTCD_STATUS, pc.CREATED_DATE, pc.CREATED_USER_CODE,\n" +
-                "pc.CREATED_DATE, pc.CREATED_USER_CODE, br.BRNH_NAME AS BRANCH_NAME\n" +
+                "pc.LAST_MOD_DATE, pc.LAST_MOD_USER_CODE, br.BRNH_NAME AS BRANCH_NAME\n" +
                 "FROM T_TR_PATIENT_CONDITION pc\n" +
-                "INNER JOIN T_RF_BRANCH br ON pc.PTAD_BRANCH_ID = br.BRNH_ID\n" +
+                "INNER JOIN T_RF_BRANCH br ON pc.PTCD_BRANCH_ID = br.BRNH_ID\n" +
                 "WHERE pc.PTCD_ADMISSION_ID = :admissionId AND pc.PTCD_STATUS = :status AND pc.PTCD_BRANCH_ID IN (:branchIdList)";
 
         Query query = entityManager.createNativeQuery(queryString);
