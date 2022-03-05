@@ -134,11 +134,13 @@ public class DepartmentLocationServiceImpl extends EntityValidator implements De
 
         final String queryString = "SELECT DPLC_ID, DPLC_NAME, DPLC_ROOM_ID, DPLC_DEPARTMENT_CODE, CREATED_DATE,\n" +
                 "CREATED_USER_CODE, DPLC_STATUS, LAST_MOD_DATE, LAST_MOD_USER_CODE, DPLC_BRANCH_ID\n" +
-                "FROM T_RF_DEPARTMENT_LOCATION WHERE DPLC_STATUS = :status AND DPLC_BRANCH_ID IN (:branchIdList)";
+                "FROM T_RF_DEPARTMENT_LOCATION WHERE DPLC_DEPARTMENT_CODE = :departmentCode AND DPLC_STATUS = :status " +
+                "AND DPLC_BRANCH_ID IN (:branchIdList)";
 
         Query query = entityManager.createNativeQuery(queryString);
 
         query.setParameter("status", STATUS_ACTIVE.getShortValue());
+        query.setParameter("departmentCode", departmentCode);
         query.setParameter("branchIdList", captureBranchIds());
 
         List<Map<String,Object>> result = extractResultSet(query);
