@@ -51,4 +51,5 @@ public class PartyDTO implements Paginated {
     private LocalDateTime lastUpdatedDate;
     private String lastUpdatedUserCode;
     private List<PartyContactDTO> contactList;
+    private UserDTO user;
 }

@@ -19,6 +19,7 @@ public class SurgeryDTO implements Paginated {
     private String name;
     @NotBlank(message = "Surgery Type is mandatory")
     private String type;
+    private String typeName;
     private String description;
     private Short status;
     @NotNull(message = "Surgery Fee is mandatory")

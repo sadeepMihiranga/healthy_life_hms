@@ -23,6 +23,7 @@ public class PatientMedicalTestDTO implements Paginated {
     private String patientName;
     private String testedBy;
     private String approvedBy;
+    private String approvedByName;
     private Short testStatus;
     private String remarks;
     private Short status;

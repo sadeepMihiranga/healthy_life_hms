@@ -27,6 +27,7 @@ public class PatientSurgeryDTO implements Paginated {
     private Long admissionId;
     @NotNull(message = "Operation Room Id is mandatory")
     private Long operationRoomId;
+    private String operationRoomNo;
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startedDateTime;

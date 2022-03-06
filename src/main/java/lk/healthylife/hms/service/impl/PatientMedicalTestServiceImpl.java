@@ -164,10 +164,12 @@ public class PatientMedicalTestServiceImpl extends EntityValidator implements Pa
         final String queryString = "SELECT pmt.PMDT_ID, pmt.PMDT_MEDICAL_TEST_ID, pmt.PMDT_PATIENT_CODE, pmt.PMDT_TESTED_BY,\n" +
                 "pmt.PMDT_STATUS, pmt.CREATED_DATE, pmt.CREATED_USER_CODE, pmt.PMDT_ADMISSION_ID,\n" +
                 "pmt.PMDT_BRANCH_ID, pmt.PMDT_TEST_STATUS, pmt.PMDT_REMARKS, pmt.LAST_MOD_DATE,\n" +
-                "pmt.LAST_MOD_USER_CODE, pmt.PMDT_APPROVED_BY, mt.MDTS_NAME AS TEST_NAME, patinet.PRTY_NAME AS PATIENT_NAME\n" +
+                "pmt.LAST_MOD_USER_CODE, pmt.PMDT_APPROVED_BY, mt.MDTS_NAME AS TEST_NAME, patinet.PRTY_NAME AS PATIENT_NAME,\n" +
+                "approve.PRTY_NAME AS APPROVED_DOCTOR_NAME\n" +
                 "FROM T_TR_PATIENT_MEDICAL_TEST pmt\n" +
                 "INNER JOIN T_MS_MEDICAL_TEST mt ON pmt.PMDT_MEDICAL_TEST_ID = mt.MDTS_ID\n" +
                 "INNER JOIN T_MS_PARTY patinet ON pmt.PMDT_PATIENT_CODE = patinet.PRTY_CODE\n" +
+                "INNER JOIN T_MS_PARTY approve ON pmt.PMDT_APPROVED_BY = approve.PRTY_CODE\n" +
                 "WHERE pmt.PMDT_STATUS = :status AND pmt.PMDT_BRANCH_ID IN (:branchIdList)\n" +
                 "AND (upper(mt.MDTS_NAME) LIKE ('%'||upper(:testName)||'%'))\n" +
                 "AND (upper(patinet.PRTY_NAME) LIKE ('%'||upper(:patientName)||'%'))\n" +
@@ -289,6 +291,7 @@ public class PatientMedicalTestServiceImpl extends EntityValidator implements Pa
         patientMedicalTestDTO.setPatientName(extractValue(String.valueOf(patientMedicalTest.get("PATIENT_NAME"))));
         patientMedicalTestDTO.setTestedBy(extractValue(String.valueOf(patientMedicalTest.get("PMDT_TESTED_BY"))));
         patientMedicalTestDTO.setApprovedBy(extractValue(String.valueOf(patientMedicalTest.get("PMDT_APPROVED_BY"))));
+        patientMedicalTestDTO.setApprovedByName(extractValue(String.valueOf(patientMedicalTest.get("APPROVED_DOCTOR_NAME"))));
         patientMedicalTestDTO.setAdmissionId(extractLongValue(String.valueOf(patientMedicalTest.get("PMDT_ADMISSION_ID"))));
         patientMedicalTestDTO.setRemarks(extractValue(String.valueOf(patientMedicalTest.get("PMDT_REMARKS"))));
         patientMedicalTestDTO.setTestStatus(extractShortValue(String.valueOf(patientMedicalTest.get("PMDT_TEST_STATUS"))));

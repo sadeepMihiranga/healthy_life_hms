@@ -195,11 +195,12 @@ public class PatientSurgeryServiceImpl extends EntityValidator implements Patien
         final String queryString = "SELECT ps.PTSG_ID, ps.PTSG_SURGERY_ID, ps.PTSG_PATIENT_CODE, ps.PTSG_ADMISSION_ID, ps.PTSG_ROOM_ID,\n" +
                 "ps.PTSG_STARTED_DATE_TIME, ps.PTSG_ENDED_DATE_TIME, ps.CREATED_DATE, ps.CREATED_USER_CODE,\n" +
                 "ps.PTSG_BRANCH_ID, ps.PTSG_STATUS, ps.LAST_MOD_DATE, ps.LAST_MOD_USER_CODE, br.BRNH_NAME AS BRANCH_NAME,\n" +
-                "s.SRGY_NAME AS SURGERY_NAME, p.PRTY_NAME AS PATIENT_NAME\n" +
+                "s.SRGY_NAME AS SURGERY_NAME, p.PRTY_NAME AS PATIENT_NAME, room.ROOM_NO\n" +
                 "FROM T_TR_PATIENT_SURGERY ps\n" +
                 "INNER JOIN T_RF_BRANCH br ON ps.PTSG_BRANCH_ID = br.BRNH_ID\n" +
                 "INNER JOIN T_MS_SURGERY s ON ps.PTSG_SURGERY_ID = s.SRGY_ID\n" +
                 "INNER JOIN T_MS_PARTY p ON ps.PTSG_PATIENT_CODE = p.PRTY_CODE\n" +
+                "INNER JOIN T_MS_ROOM room ON ps.PTSG_ROOM_ID = room.ROOM_ID\n" +
                 "WHERE ps.PTSG_STATUS = :status AND ps.PTSG_BRANCH_ID IN (:branchIdList)\n" +
                 "AND (upper(p.PRTY_NAME) LIKE ('%'||upper(:patientName)||'%'))\n" +
                 "AND (upper(s.SRGY_NAME) LIKE ('%'||upper(:surgeryName)||'%'))\n" +
@@ -253,6 +254,35 @@ public class PatientSurgeryServiceImpl extends EntityValidator implements Patien
             return true;
 
         return false;
+    }
+
+    @Override
+    public List<PatientSurgeryDTO> getPatientSurgeriesByAdmission(Long admissionId) {
+        List<PatientSurgeryDTO> patientSurgeryDTOList = new ArrayList<>();
+
+        final String queryString = "SELECT ps.PTSG_ID, ps.CREATED_DATE, sg.SRGY_NAME\n" +
+                "FROM T_TR_PATIENT_SURGERY ps\n" +
+                "INNER JOIN T_MS_SURGERY sg ON sg.SRGY_ID = ps.PTSG_SURGERY_ID\n" +
+                "WHERE ps.PTSG_ADMISSION_ID = :admissionId AND ps.PTSG_STATUS = :status AND ps.PTSG_BRANCH_ID IN (:branchIdList)";
+
+        Query query = entityManager.createNativeQuery(queryString);
+
+        query.setParameter("status", STATUS_ACTIVE.getShortValue());
+        query.setParameter("branchIdList", captureBranchIds());
+        query.setParameter("admissionId", admissionId);
+
+        List<Map<String,Object>> result = extractResultSet(query);
+
+        if (result.size() == 0)
+            return null;
+
+        for (Map<String,Object> patientSurgery : result) {
+            PatientSurgeryDTO patientSurgeryDTO = new PatientSurgeryDTO();
+            createDTO(patientSurgeryDTO, patientSurgery);
+            patientSurgeryDTOList.add(patientSurgeryDTO);
+        }
+
+        return patientSurgeryDTOList;
     }
 
     @Override
@@ -395,6 +425,7 @@ public class PatientSurgeryServiceImpl extends EntityValidator implements Patien
         patientSurgeryDTO.setSurgeryName(extractValue(String.valueOf(patientSurgery.get("SURGERY_NAME"))));
         patientSurgeryDTO.setAdmissionId(extractLongValue(String.valueOf(patientSurgery.get("PTSG_ADMISSION_ID"))));
         patientSurgeryDTO.setOperationRoomId(extractLongValue(String.valueOf(patientSurgery.get("PTSG_ROOM_ID"))));
+        patientSurgeryDTO.setOperationRoomNo(extractValue(String.valueOf(patientSurgery.get("ROOM_NO"))));
         patientSurgeryDTO.setStartedDateTime(extractDateTime(String.valueOf(patientSurgery.get("PTSG_STARTED_DATE_TIME"))));
         patientSurgeryDTO.setEndedDateTime(extractDateTime(String.valueOf(patientSurgery.get("PTSG_ENDED_DATE_TIME"))));
         patientSurgeryDTO.setStatus(extractShortValue(String.valueOf(patientSurgery.get("PTSG_STATUS"))));

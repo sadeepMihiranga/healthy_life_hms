@@ -6,6 +6,7 @@ import lk.healthylife.hms.config.repository.NumberGeneratorRepository;
 import lk.healthylife.hms.config.repository.PartyRepository;
 import lk.healthylife.hms.dto.PaginatedEntity;
 import lk.healthylife.hms.dto.PartyDTO;
+import lk.healthylife.hms.dto.UserDTO;
 import lk.healthylife.hms.entity.TMsParty;
 import lk.healthylife.hms.exception.DataNotFoundException;
 import lk.healthylife.hms.exception.InvalidDataException;
@@ -17,17 +18,21 @@ import lk.healthylife.hms.service.PartyService;
 import lk.healthylife.hms.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
-import org.hibernate.query.internal.NativeQueryImpl;
-import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static lk.healthylife.hms.util.constant.CommonReferenceTypeCodes.*;
-import static lk.healthylife.hms.util.constant.Constants.*;
+import static lk.healthylife.hms.util.constant.Constants.STATUS_ACTIVE;
+import static lk.healthylife.hms.util.constant.Constants.STATUS_INACTIVE;
 
 @Slf4j
 @Service
@@ -128,6 +133,10 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
                 partyContactService.insertPartyContact(partyContactDTO, true);
             });
         }
+
+        UserDTO userDTO = partyDTO.getUser();
+        userDTO.setPartyCode(createdParty.getPrtyCode());
+        userService.createUser(userDTO);
 
         return PartyMapper.INSTANCE.entityToDTO(createdParty);
     }

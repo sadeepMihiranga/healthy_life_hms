@@ -18,6 +18,8 @@ public interface PatientSurgeryService {
 
     Boolean removePatientSurgery(Long patientSurgeryId);
 
+    List<PatientSurgeryDTO> getPatientSurgeriesByAdmission(Long admissionId);
+
 
     DoctorSurgeryDTO assignDoctorToSurgery(DoctorSurgeryDTO doctorSurgeryDTO);
 

@@ -181,8 +181,9 @@ public class SurgeryServiceImpl  extends EntityValidator implements SurgeryServi
 
         query = null;
 
-        final String queryString = "SELECT s.SRGY_ID, s.SRGY_TYPE, s.SRGY_NAME, s.SRGY_DESCRIPTION, s.SRGY_FEE, s.SRGY_ESTIMATED_TIME,\n" +
-                "s.SRGY_STATUS, s.CREATED_DATE, s.CREATED_USER_CODE, type.CMRF_DESCRIPTION AS TYPE_NAME, s.LAST_MOD_DATE, s.LAST_MOD_USER_CODE \n" +
+        final String queryString = "SELECT s.SRGY_ID, s.SRGY_TYPE, s.SRGY_NAME, s.SRGY_DESCRIPTION, s.SRGY_FEE,\n" +
+                "s.SRGY_ESTIMATED_TIME, s.SRGY_STATUS, s.CREATED_DATE, s.CREATED_USER_CODE, type.CMRF_DESCRIPTION AS TYPE_NAME,\n" +
+                "s.LAST_MOD_DATE, s.LAST_MOD_USER_CODE\n" +
                 "FROM T_MS_SURGERY s\n" +
                 "LEFT JOIN T_RF_COMMON_REFERENCE type ON s.SRGY_TYPE = type.CMRF_CODE\n" +
                 "WHERE s.SRGY_STATUS = :status\n" +
@@ -206,9 +207,7 @@ public class SurgeryServiceImpl  extends EntityValidator implements SurgeryServi
         for (Map<String,Object> surgery : result) {
 
             SurgeryDTO surgeryDTO = new SurgeryDTO();
-
             createDTO(surgeryDTO, surgery);
-
             surgeryList.add(surgeryDTO);
         }
 
@@ -280,6 +279,7 @@ public class SurgeryServiceImpl  extends EntityValidator implements SurgeryServi
         surgeryDTO.setName(extractValue(String.valueOf(surgery.get("SRGY_NAME"))));
         surgeryDTO.setDescription(extractValue(String.valueOf(surgery.get("SRGY_DESCRIPTION"))));
         surgeryDTO.setType(extractValue(String.valueOf(surgery.get("SRGY_TYPE"))));
+        surgeryDTO.setTypeName(extractValue(String.valueOf(surgery.get("TYPE_NAME"))));
         surgeryDTO.setFee(extractDecimalValue(String.valueOf(surgery.get("SRGY_FEE"))));
         surgeryDTO.setEstimatedTimeInHours(extractDecimalValue(String.valueOf(surgery.get("SRGY_ESTIMATED_TIME"))));
         surgeryDTO.setStatus(extractShortValue(String.valueOf(surgery.get("SRGY_STATUS"))));
