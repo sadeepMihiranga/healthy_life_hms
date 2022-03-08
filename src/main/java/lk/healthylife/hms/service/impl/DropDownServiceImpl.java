@@ -38,8 +38,10 @@ public class DropDownServiceImpl implements DropDownService {
     private static final String SURGERIES = "SUGRIS";
     private static final String PARTY_TYPES = "PTYPE";
     private static final String DOCTOR_SPECIALIZATION = "DCSPC";
-    private static final String MEDICAL_TESTS = "MDTTP";
+    private static final String MEDICAL_TEST_TYPES = "MDTTP";
+    private static final String MEDICAL_TESTS = "MDTST";
     private static final String PATIENT_CONDITION_WHEN = "CONDW";
+    private static final String SURGERY_TYPES = "SRGTP";
 
     private final BranchService branchService;
     private final DepartmentService departmentService;
@@ -101,13 +103,14 @@ public class DropDownServiceImpl implements DropDownService {
         dropDownCodes.put("FACILITIES", FACILITIES);
         dropDownCodes.put("SYMPTOMS", SYMPTOMS);
         dropDownCodes.put("SURGERIES", SURGERIES);
-        dropDownCodes.put("SURGERIES", SURGERIES);
         dropDownCodes.put("PARTY_TYPES", PARTY_TYPES);
         dropDownCodes.put("MEDICINE_TYPES", MEDICINE_TYPES);
         dropDownCodes.put("MEDICINE_BRANDS", MEDICINE_BRANDS);
         dropDownCodes.put("DOCTOR_SPECIALIZATION", DOCTOR_SPECIALIZATION);
         dropDownCodes.put("MEDICAL_TESTS", MEDICAL_TESTS);
+        dropDownCodes.put("MEDICAL_TEST_TYPES", MEDICAL_TEST_TYPES);
         dropDownCodes.put("PATIENT_CONDITION_WHEN", PATIENT_CONDITION_WHEN);
+        dropDownCodes.put("SURGERY_TYPES", SURGERY_TYPES);
 
         return dropDownCodes;
     }
@@ -275,6 +278,12 @@ public class DropDownServiceImpl implements DropDownService {
                 break;
             case PATIENT_CONDITION_WHEN :
                 downDTOList = populateFromCommonReference(PATIENT_CONDITION_WHEN);
+                break;
+            case SURGERY_TYPES :
+                downDTOList = populateFromCommonReference(SURGERY_TYPES);
+                break;
+            case MEDICAL_TEST_TYPES :
+                downDTOList = populateFromCommonReference(MEDICAL_TEST_TYPES);
                 break;
             default:
                 throw new InvalidDataException("Requested Dropdown Code is invalid");

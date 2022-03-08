@@ -544,6 +544,8 @@ public class UserServiceImpl extends EntityValidator implements UserService, Use
             branchList.add(tMsUserBranch.getBranch().getBrnhId());
         });
 
+        TMsParty tMsParty = partyRepository.findByPrtyCodeAndPrtyStatus(userInDb.getPartyCode(), STATUS_ACTIVE.getShortValue());
+
         User user = new User();
         user.setId(userInDb.getId());
         user.setName(userInDb.getDisplayName());
@@ -553,6 +555,7 @@ public class UserServiceImpl extends EntityValidator implements UserService, Use
         user.setPassword(userInDb.getPassword());
         user.setAuthorities(authorities);
         user.setPermittedFunctions(permittedFunctions);
+        user.setUserType(tMsParty.getPrtyType());
 
         return user;
     }

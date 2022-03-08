@@ -18,6 +18,7 @@ public class User implements UserDetails {
     private String password;
     private Collection<SimpleGrantedAuthority> authorities;
     private Collection<FunctionDTO> permittedFunctions;
+    private String userType;
 
     public User() {
         this.authorities = new ArrayList<>();
@@ -108,5 +109,13 @@ public class User implements UserDetails {
 
     public void setBranches(Collection<Long> branches) {
         this.branches = branches;
+    }
+
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 }
