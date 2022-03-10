@@ -168,15 +168,42 @@ public class PatientAdmissionServiceImpl extends EntityValidator implements Pati
         if (result.size() == 0)
             return null;
 
-        for (Map<String,Object> facility : result) {
+        for (Map<String,Object> admission : result) {
             patientAdmissionDTO = new PatientAdmissionDTO();
-            createDTO(patientAdmissionDTO, facility);
+            createDTO(patientAdmissionDTO, admission);
 
             patientAdmissionDTO.setConditions(patientConditionService.getPatientConditionListByAdmission(admissionId));
             patientAdmissionDTO.setTreatmentAdvices(treatmentAdviceService.getAdvicesByAdmissionId(admissionId));
         }
 
         return patientAdmissionDTO;
+    }
+
+    @Override
+    public List<PatientAdmissionDTO> getAdmissionListForDropDown() {
+
+        List<PatientAdmissionDTO> patientAdmissionDTOList = new ArrayList<>();
+
+        final String queryString = "SELECT pa.PTAD_ID, pa.PTAD_ADMITTED_DATE, patient.PRTY_NAME AS PATIENT_NAME\n" +
+                "FROM T_TR_PATIENT_ADMISSION pa\n" +
+                "INNER JOIN T_MS_PARTY patient ON pa.PTAD_PATIENT_CODE = patient.PRTY_CODE\n" +
+                "WHERE pa.PTAD_STATUS = :status AND pa.PTAD_BRANCH_ID IN (:branchIdList)";
+
+        Query query = entityManager.createNativeQuery(queryString);
+
+        query.setParameter("status", STATUS_ACTIVE.getShortValue());
+        query.setParameter("branchIdList", captureBranchIds());
+
+        List<Map<String,Object>> result = extractResultSet(query);
+
+        for (Map<String,Object> admission : result) {
+            PatientAdmissionDTO patientAdmissionDTO = new PatientAdmissionDTO();
+            createDTO(patientAdmissionDTO, admission);
+
+            patientAdmissionDTOList.add(patientAdmissionDTO);
+        }
+
+        return patientAdmissionDTOList;
     }
 
     @Override

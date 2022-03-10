@@ -7,6 +7,7 @@ import lk.healthylife.hms.exception.NoRequiredInfoException;
 import lk.healthylife.hms.config.repository.FunctionRepository;
 import lk.healthylife.hms.config.repository.RoleRepository;
 import lk.healthylife.hms.service.*;
+import lk.healthylife.hms.util.DateConversion;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,7 @@ public class DropDownServiceImpl implements DropDownService {
     private static final String MEDICAL_TESTS = "MDTST";
     private static final String PATIENT_CONDITION_WHEN = "CONDW";
     private static final String SURGERY_TYPES = "SRGTP";
+    private static final String ADMISSIONS = "ADMIS";
 
     private final BranchService branchService;
     private final DepartmentService departmentService;
@@ -53,6 +55,7 @@ public class DropDownServiceImpl implements DropDownService {
     private final SymptomService symptomService;
     private final SurgeryService surgeryService;
     private final MedicalTestService medicalTestService;
+    private final PatientAdmissionService patientAdmissionService;
 
     private final FunctionRepository functionRepository;
     private final RoleRepository roleRepository;
@@ -67,6 +70,7 @@ public class DropDownServiceImpl implements DropDownService {
                                SymptomService symptomService,
                                SurgeryService surgeryService,
                                MedicalTestService medicalTestService,
+                               PatientAdmissionService patientAdmissionService,
                                FunctionRepository functionRepository,
                                RoleRepository roleRepository) {
         this.branchService = branchService;
@@ -79,6 +83,7 @@ public class DropDownServiceImpl implements DropDownService {
         this.symptomService = symptomService;
         this.surgeryService = surgeryService;
         this.medicalTestService = medicalTestService;
+        this.patientAdmissionService = patientAdmissionService;
         this.functionRepository = functionRepository;
         this.roleRepository = roleRepository;
     }
@@ -111,6 +116,7 @@ public class DropDownServiceImpl implements DropDownService {
         dropDownCodes.put("MEDICAL_TEST_TYPES", MEDICAL_TEST_TYPES);
         dropDownCodes.put("PATIENT_CONDITION_WHEN", PATIENT_CONDITION_WHEN);
         dropDownCodes.put("SURGERY_TYPES", SURGERY_TYPES);
+        dropDownCodes.put("ADMISSIONS", ADMISSIONS);
 
         return dropDownCodes;
     }
@@ -248,6 +254,17 @@ public class DropDownServiceImpl implements DropDownService {
                             String.valueOf(medicalTestDTO.getMedicalTestId()),
                             medicalTestDTO.getName(),
                             null,
+                            null
+                    ));
+                });
+                break;
+            case ADMISSIONS :
+                List<DropDownDTO> admissionList = downDTOList;
+                patientAdmissionService.getAdmissionListForDropDown().forEach(admissionDTO -> {
+                    admissionList.add(new DropDownDTO(
+                            String.valueOf(admissionDTO.getPatientAdmissionId()),
+                            DateConversion.convertLocalDateTimeToString(admissionDTO.getAdmittedDate()),
+                            admissionDTO.getPatientName(),
                             null
                     ));
                 });
