@@ -169,7 +169,7 @@ public class PatientMedicalTestServiceImpl extends EntityValidator implements Pa
                 "FROM T_TR_PATIENT_MEDICAL_TEST pmt\n" +
                 "INNER JOIN T_MS_MEDICAL_TEST mt ON pmt.PMDT_MEDICAL_TEST_ID = mt.MDTS_ID\n" +
                 "INNER JOIN T_MS_PARTY patinet ON pmt.PMDT_PATIENT_CODE = patinet.PRTY_CODE\n" +
-                "INNER JOIN T_MS_PARTY approve ON pmt.PMDT_APPROVED_BY = approve.PRTY_CODE\n" +
+                "LEFT JOIN T_MS_PARTY approve ON pmt.PMDT_APPROVED_BY = approve.PRTY_CODE\n" +
                 "WHERE pmt.PMDT_STATUS = :status AND pmt.PMDT_BRANCH_ID IN (:branchIdList)\n" +
                 "AND (upper(mt.MDTS_NAME) LIKE ('%'||upper(:testName)||'%'))\n" +
                 "AND (upper(patinet.PRTY_NAME) LIKE ('%'||upper(:patientName)||'%'))\n" +

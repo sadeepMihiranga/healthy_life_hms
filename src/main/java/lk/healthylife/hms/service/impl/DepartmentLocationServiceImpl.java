@@ -52,6 +52,8 @@ public class DepartmentLocationServiceImpl extends EntityValidator implements De
 
         BigInteger insertedRowId = null;
 
+
+
         try (Connection connection = dataSource.getConnection()) {
 
             CallableStatement statement = connection.prepareCall("{CALL INSERT INTO T_RF_DEPARTMENT_LOCATION (DPLC_NAME, " +

@@ -105,6 +105,9 @@ public class DepartmentServiceImpl extends EntityValidator implements Department
         String departmentCode = null;
         validateEntity(departmentDTO);
 
+        if(departmentDTO.getName().length() > 40 || departmentDTO.getName().length() < 5)
+            throw new InvalidDataException("Department Name is invalid");
+
         if(!Strings.isNullOrEmpty(departmentDTO.getDepartmentHead())) {
             PartyDTO departmentHead = partyService.getPartyByPartyCode(departmentDTO.getDepartmentHead());
 
