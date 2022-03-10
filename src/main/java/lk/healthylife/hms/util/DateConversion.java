@@ -155,4 +155,9 @@ public final class DateConversion {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(STANDARD_TIME);
         return dateToConvert.format(formatter);
     }
+
+    public static boolean isValidDate(String dateString, String dateFormat) throws ParseException {
+        Date date = new SimpleDateFormat(dateFormat).parse(dateString);
+        return new Date().after(date);
+    }
 }

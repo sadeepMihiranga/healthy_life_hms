@@ -16,6 +16,7 @@ import lk.healthylife.hms.service.CommonReferenceService;
 import lk.healthylife.hms.service.PartyContactService;
 import lk.healthylife.hms.service.PartyService;
 import lk.healthylife.hms.service.UserService;
+import lk.healthylife.hms.util.DateConversion;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,11 +71,30 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
     public PartyDTO createParty(PartyDTO partyDTO) {
 
         String partyCode = null;
+
         validateEntity(partyDTO);
-
-        partyDTO.setName(partyDTO.getFirstName() + " " + partyDTO.getLastName());
-
         validatePartyReferenceDetailsOnPersist(partyDTO);
+
+        if(!Strings.isNullOrEmpty(partyDTO.getNic())) {
+            if(!partyDTO.getNic().matches("^([0-9]{9}[x|X|v|V]|[0-9]{12})$")) {
+                throw new InvalidDataException("NIC number is invalid");
+            }
+        }
+
+        if(!Strings.isNullOrEmpty(partyDTO.getPassport())) {
+            if(!partyDTO.getPassport().matches("^(?!^0+$)[a-zA-Z0-9]{5,20}$")) {
+                throw new InvalidDataException("Passport number is invalid");
+            }
+        }
+
+        try{
+            if(!DateConversion.isValidDate(DateConversion.convertLocalDateToString(partyDTO.getDob()), DateConversion.STANDARD_DATE_FORMAT)) {
+                throw new InvalidDataException("Date of birth cannot be a future date");
+            }
+        }catch (ParseException e) {
+            e.printStackTrace();
+            throw new OperationException("Error while saving patient");
+        }
 
         try {
             partyCode = numberGeneratorRepository.generateNumber("CU", "Y", "#", "#",
@@ -85,6 +106,8 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
 
         if(Strings.isNullOrEmpty(partyCode))
             throw new OperationException("Party Code not generated");
+
+        partyDTO.setName(partyDTO.getFirstName() + " " + partyDTO.getLastName());
 
         try {
             final Query query = entityManager.createNativeQuery("INSERT INTO \"T_MS_PARTY\" " +

@@ -10,6 +10,8 @@ import lk.healthylife.hms.config.repository.PartyContactRepository;
 import lk.healthylife.hms.config.repository.PartyRepository;
 import lk.healthylife.hms.service.CommonReferenceService;
 import lk.healthylife.hms.service.PartyContactService;
+import lk.healthylife.hms.util.constant.CommonReferenceCodes;
+import lk.healthylife.hms.util.constant.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Strings;
 import org.hibernate.query.internal.NativeQueryImpl;
@@ -24,6 +26,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static lk.healthylife.hms.util.constant.CommonReferenceCodes.PARTY_CONTACT_EMAIL;
+import static lk.healthylife.hms.util.constant.CommonReferenceCodes.PARTY_CONTACT_MOBILE;
 import static lk.healthylife.hms.util.constant.CommonReferenceTypeCodes.*;
 import static lk.healthylife.hms.util.constant.Constants.*;
 
@@ -64,6 +68,14 @@ public class PartyContactServiceImpl extends EntityValidator implements PartyCon
 
         if(alreadyPartyContact != null)
             throw new DuplicateRecordException("There is a active Contact Number for the given Type");
+
+        if(partyContactDTO.getContactType().equals(PARTY_CONTACT_MOBILE.getValue()))
+            if(partyContactDTO.getContactNumber().length() > 15 || partyContactDTO.getContactNumber().length() < 9)
+                throw new InvalidDataException("Invalid contact number");
+
+        if(partyContactDTO.getContactType().equals(PARTY_CONTACT_EMAIL.getValue()))
+            if(!partyContactDTO.getContactNumber().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"))
+                throw new InvalidDataException("Invalid email address");
 
         final Query query = entityManager.createNativeQuery("INSERT INTO \"T_MS_PARTY_CONTACT\" " +
                         "(\"PTCN_CONTACT_TYPE\", \"PTCN_CONTACT_NUMBER\", \"PTCN_STATUS\", \"PTCN_PRTY_CODE\")\n" +
