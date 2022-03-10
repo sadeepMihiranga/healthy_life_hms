@@ -4,6 +4,7 @@ import lk.healthylife.hms.config.AuditorAwareImpl;
 import lk.healthylife.hms.config.EntityValidator;
 import lk.healthylife.hms.dto.PaginatedEntity;
 import lk.healthylife.hms.dto.RoomDTO;
+import lk.healthylife.hms.exception.InvalidDataException;
 import lk.healthylife.hms.exception.NoRequiredInfoException;
 import lk.healthylife.hms.exception.OperationException;
 import lk.healthylife.hms.service.CommonReferenceService;
@@ -16,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,6 +85,16 @@ public class RoomServiceImpl extends EntityValidator implements RoomService {
         validateEntity(roomDTO);
 
         validatePartyReferenceDetailsOnPersist(roomDTO);
+
+        if(roomDTO.getRoomNo().length() > 10 || roomDTO.getRoomNo().length() < 4)
+            throw new InvalidDataException("Invalid Room number");
+
+        if(roomDTO.getPerDayCharge() != null) {
+            if (roomDTO.getPerDayCharge().compareTo(BigDecimal.ZERO) <= 0
+                    || roomDTO.getPerDayCharge().compareTo(BigDecimal.valueOf(200000)) > 0) {
+                throw new InvalidDataException("Room Per Day Charge is invalid");
+            }
+        }
 
         try {
             final Query query = entityManager.createNativeQuery("INSERT INTO T_MS_ROOM (ROOM_NO, ROOM_TYPE, ROOM_PER_DAY_CHARGE,\n" +

@@ -88,7 +88,7 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
         }
 
         try{
-            if(!DateConversion.isValidDate(DateConversion.convertLocalDateToString(partyDTO.getDob()), DateConversion.STANDARD_DATE_FORMAT)) {
+            if(!DateConversion.isDateAfter(DateConversion.convertLocalDateToString(partyDTO.getDob()), DateConversion.STANDARD_DATE_FORMAT)) {
                 throw new InvalidDataException("Date of birth cannot be a future date");
             }
         }catch (ParseException e) {

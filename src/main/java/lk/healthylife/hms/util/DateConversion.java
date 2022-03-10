@@ -156,8 +156,13 @@ public final class DateConversion {
         return dateToConvert.format(formatter);
     }
 
-    public static boolean isValidDate(String dateString, String dateFormat) throws ParseException {
+    public static boolean isDateAfter(String dateString, String dateFormat) throws ParseException {
         Date date = new SimpleDateFormat(dateFormat).parse(dateString);
         return new Date().after(date);
+    }
+
+    public static boolean isDateAfter(String fromDate, String toDate, String dateFormat) throws ParseException {
+        Date date = new SimpleDateFormat(dateFormat).parse(fromDate);
+        return new SimpleDateFormat(dateFormat).parse(toDate).after(date);
     }
 }

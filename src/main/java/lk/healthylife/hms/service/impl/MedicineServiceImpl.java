@@ -4,10 +4,12 @@ import lk.healthylife.hms.config.AuditorAwareImpl;
 import lk.healthylife.hms.config.EntityValidator;
 import lk.healthylife.hms.dto.MedicineDTO;
 import lk.healthylife.hms.dto.PaginatedEntity;
+import lk.healthylife.hms.exception.InvalidDataException;
 import lk.healthylife.hms.exception.NoRequiredInfoException;
 import lk.healthylife.hms.exception.OperationException;
 import lk.healthylife.hms.service.CommonReferenceService;
 import lk.healthylife.hms.service.MedicineService;
+import lk.healthylife.hms.util.DateConversion;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +18,13 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,6 +95,17 @@ public class MedicineServiceImpl extends EntityValidator implements MedicineServ
         BigInteger insertedRowId = null;
 
         validateEntity(medicineDTO);
+
+        if(medicineDTO.getDose().compareTo(BigDecimal.ZERO) <= 0 || medicineDTO.getDose().compareTo(BigDecimal.valueOf(20)) > 0)
+            throw new InvalidDataException("Invalid dose of medicine");
+
+        try {
+            if (!DateConversion.isDateAfter(DateConversion.convertLocalDateToString(medicineDTO.getManufactureDate()),
+                    DateConversion.convertLocalDateToString(medicineDTO.getExpireDate()), DateConversion.STANDARD_DATE_FORMAT))
+                throw new InvalidDataException("Expire Date should be higher that Manufacture Date");
+        }catch (ParseException e) {
+            throw new OperationException("Error while saving Medicine");
+        }
 
         validatePartyReferenceDetailsOnPersist(medicineDTO);
 
