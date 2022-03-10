@@ -273,7 +273,7 @@ public class DepartmentServiceImpl extends EntityValidator implements Department
         validateDepartmentCode(departmentCode);
 
         final String queryString = "SELECT d.DPMT_CODE, d.DPMT_NAME, d.DPMT_DESCRIPTION, d.DPMT_HEAD, d.DPMT_STATUS, d.CREATED_DATE,\n" +
-                "d.CREATED_USER_CODE, d.LAST_MOD_DATE, d.LAST_MOD_USER_CODE, p.PRTY_CODE AS DPMT_HEAD_NAME \n" +
+                "d.CREATED_USER_CODE, d.LAST_MOD_DATE, d.LAST_MOD_USER_CODE, p.PRTY_NAME AS DPMT_HEAD_NAME \n" +
                 "FROM T_MS_DEPARTMENT d \n" +
                 "LEFT JOIN T_MS_PARTY p ON d.DPMT_HEAD = p.PRTY_CODE \n" +
                 "WHERE d.DPMT_CODE = :departmentCode AND d.DPMT_STATUS = :status AND d.DPMT_BRANCH_ID IN (:branchIdList)";
