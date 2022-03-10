@@ -134,9 +134,11 @@ public class PartyServiceImpl extends EntityValidator implements PartyService {
             });
         }
 
-        UserDTO userDTO = partyDTO.getUser();
-        userDTO.setPartyCode(createdParty.getPrtyCode());
-        userService.createUser(userDTO);
+        if(partyDTO.getUser() != null) {
+            UserDTO userDTO = partyDTO.getUser();
+            userDTO.setPartyCode(createdParty.getPrtyCode());
+            userService.createUser(userDTO);
+        }
 
         return PartyMapper.INSTANCE.entityToDTO(createdParty);
     }

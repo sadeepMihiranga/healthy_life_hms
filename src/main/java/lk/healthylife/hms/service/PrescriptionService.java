@@ -7,7 +7,6 @@ import javax.transaction.Transactional;
 
 public interface PrescriptionService {
 
-    @Transactional
     PrescriptionDTO createPrescription(PrescriptionDTO prescriptionDTO);
 
     PrescriptionDTO getPrescriptionById(Long prescriptionId);

@@ -18,7 +18,7 @@ public class DashboardController {
         this.dashboardService = dashboardService;
     }
 
-    @GetMapping("/summery")
+    @PostMapping("/summery")
     public ResponseEntity<SuccessResponse> getSummeryCounts(@RequestBody SummeryCountsDTO summeryCountsDTO) {
         return SuccessResponseHandler.generateResponse(dashboardService.getSummeryCounts(summeryCountsDTO));
     }

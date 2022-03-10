@@ -10,13 +10,10 @@ public interface DepartmentService {
 
     List<DepartmentDTO> getAllDepartmentsDropdown();
 
-    @Transactional
     DepartmentDTO createDepartment(DepartmentDTO departmentDTO);
 
-    @Transactional
     DepartmentDTO updateDepartment(String departmentCode, DepartmentDTO departmentDTO);
 
-    @Transactional
     Boolean removeDepartment(String departmentCode);
 
     PaginatedEntity departmentPaginatedSearch(String departmentCode, String departmentName, Integer page, Integer size);

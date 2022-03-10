@@ -10,13 +10,10 @@ public interface MedicineService {
 
     List<MedicineDTO> getAllMedicinesDropdown();
 
-    @Transactional
     MedicineDTO insertMedicine(MedicineDTO medicineDTO);
 
-    @Transactional
     MedicineDTO updateMedicine(Long medicineId, MedicineDTO medicineDTO);
 
-    @Transactional
     Boolean removeMedicine(Long medicineId);
 
     PaginatedEntity medicinePaginatedSearch(String name, String brand, String type, Integer page, Integer size);

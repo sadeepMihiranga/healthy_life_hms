@@ -10,13 +10,10 @@ public interface RoomService {
 
     List<RoomDTO> getAllRoomsDropdown();
 
-    @Transactional
     RoomDTO createRoom(RoomDTO roomDTO);
 
-    @Transactional
     RoomDTO updateRoom(Long roomId, RoomDTO roomDTO);
 
-    @Transactional
     Boolean removeRoom(Long roomId);
 
     PaginatedEntity roomPaginatedSearch(String roomNo, String roomType, Integer page, Integer size);
