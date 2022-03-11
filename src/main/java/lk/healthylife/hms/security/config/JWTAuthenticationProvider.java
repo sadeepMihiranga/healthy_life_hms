@@ -2,6 +2,7 @@ package lk.healthylife.hms.security.config;
 
 import io.jsonwebtoken.lang.Assert;
 import lk.healthylife.hms.dto.UserDTO;
+import lk.healthylife.hms.exception.InvalidDataException;
 import lk.healthylife.hms.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
 
         if (!encoder.matches(password, userDTO.getPassword())) {
             log.error("Authentication Failed, Invalid credentials, {}", username);
-            throw new BadCredentialsException("Authentication Failed. Username or Password not valid.");
+            throw new InvalidDataException("Authentication Failed. Username or Password not valid.");
         }
 
         UserDetails userDetails = userService.loadUserByUsername(username);
